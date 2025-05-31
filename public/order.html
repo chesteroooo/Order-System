@@ -592,7 +592,7 @@
         quantity: item.quantity
       }));
       const totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      const tableText = document.querySelector('.table-number-display').textContent;
+      const tableText = document.getElementById('table-number-display').textContent;
       const tableNumber = tableText.replace('桌號', '').trim();
 
       const year = now.getFullYear();
