@@ -149,66 +149,74 @@ const dbInit = new Promise((resolve, reject) => {
         });
 
         // 創建 Store_Schedule 表並批量插入數據
-        db.run(`CREATE TABLE IF NOT EXISTS Store_Schedule (
-            Date TEXT PRIMARY KEY,
-            DayOfWeek TEXT NOT NULL,
-            MorningStart TIME,
-            MorningEnd TIME,
-            EveningStart TIME,
-            EveningEnd TIME,
-            IsClosedToday BOOLEAN DEFAULT 0,
-            StoreName TEXT,
-            Address TEXT
-        )`, (err) => {
-            if (err) {
-                logger.error(`創建 Store_Schedule 表失敗: ${err.message}`);
-                reject(err);
-            } else {
-                logger.info('Store_Schedule 表已創建');
-                db.run(`CREATE INDEX IF NOT EXISTS idx_date ON Store_Schedule (Date)`, (err) => {
-                    if (err) {
-                        logger.error(`創建索引失敗: ${err.message}`);
-                        reject(err);
-                    }
-                });
-                db.get('SELECT COUNT(*) AS count FROM Store_Schedule', (err, row) => {
-                    if (err) {
-                        logger.error(`檢查 Store_Schedule 數據失敗: ${err.message}`);
-                        reject(err);
-                    } else if (row.count === 0) {
-                        const startDate = new Date('2025-01-01');
-                        const endDate = new Date('2025-12-31');
-                        const defaultSchedule = {
-                            '星期四': ['11:30', '13:30', '16:30', '20:00', 0],
-                            '星期五': ['11:30', '13:30', '16:30', '20:00', 0],
-                            '星期六': [null, null, null, null, 1],
-                            '星期日': ['11:30', '13:30', '16:30', '20:00', 0],
-                            '星期一': ['11:30', '13:30', '16:30', '20:00', 0],
-                            '星期二': ['11:30', '13:30', '16:30', '20:00', 0],
-                            '星期三': ['11:30', '13:30', '16:30', '20:00', 0]
-                        };
+        db.get('SELECT COUNT(*) AS count FROM Store_Schedule', (err, row) => {
+  if (err) {
+    logger.error(`檢查 Store_Schedule 資料表失敗: ${err.message}`);
+    return;
+  }
 
-                        const stmt = db.prepare(`INSERT OR REPLACE INTO Store_Schedule (Date, DayOfWeek, MorningStart, MorningEnd, EveningStart, EveningEnd, IsClosedToday, StoreName, Address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`);
-                        for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
-                            const dateStr = date.toISOString().split('T')[0];
-                            const dayOfWeek = date.toLocaleDateString('zh-TW', { weekday: 'long' });
-                            const [morningStart, morningEnd, eveningStart, eveningEnd, isClosed] = defaultSchedule[dayOfWeek];
-                            stmt.run([dateStr, dayOfWeek, morningStart, morningEnd, eveningStart, eveningEnd, isClosed, '幸福小吃', '台北市中正區幸福路123號']);
-                        }
-                        stmt.finalize((err) => {
-                            if (err) {
-                                logger.error(`插入 Store_Schedule 數據失敗: ${err.message}`);
-                                reject(err);
-                            } else {
-                                logger.info('Store_Schedule 初始數據已創建');
-                            }
-                        });
-                    } else {
-                        logger.info('Store_Schedule 數據已存在，跳過插入');
-                    }
-                });
-            }
-        });
+  if (row.count < 365) {
+    const startDate = new Date('2025-01-01');
+    const endDate = new Date('2025-12-31');
+    const stmt = db.prepare(`
+      INSERT INTO Store_Schedule 
+      (Date, DayOfWeek, MorningStart, MorningEnd, EveningStart, EveningEnd, IsClosedToday, StoreName, Address)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    const defaultSchedule = {
+      '星期一': ['11:30', '13:30', '16:30', '20:00', 0],
+      '星期二': ['11:30', '13:30', '16:30', '20:00', 0],
+      '星期三': ['11:30', '13:30', '16:30', '20:00', 0],
+      '星期四': ['11:30', '13:30', '16:30', '20:00', 0],
+      '星期五': ['11:30', '13:30', '16:30', '20:00', 0],
+      '星期六': [null, null, null, null, 1],
+      '星期日': ['11:30', '13:30', '16:30', '20:00', 0]
+    };
+
+    const storeInfo = {
+      StoreName: '志學燒肉飯',
+      Address: '974花蓮縣壽豐鄉中正路200號'
+    };
+
+    const dayNames = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+
+    for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const formattedDate = `${year}-${month}-${day}`;
+      const dayOfWeek = dayNames[date.getDay()];
+      const [MorningStart, MorningEnd, EveningStart, EveningEnd, IsClosedToday] = defaultSchedule[dayOfWeek];
+
+      db.get('SELECT COUNT(*) AS count FROM Store_Schedule WHERE Date = ?', [formattedDate], (err, row) => {
+        if (err) {
+          logger.error(`查詢日期 ${formattedDate} 是否已存在時錯誤: ${err.message}`);
+          return;
+        }
+
+        if (row.count === 0) {
+          stmt.run([
+            formattedDate,
+            dayOfWeek,
+            MorningStart,
+            MorningEnd,
+            EveningStart,
+            EveningEnd,
+            IsClosedToday,
+            storeInfo.StoreName,
+            storeInfo.Address
+          ]);
+          logger.info(`✅ 新增營業日 ${formattedDate}`);
+        } else {
+          logger.info(`⚠️ 日期 ${formattedDate} 已存在，跳過寫入`);
+        }
+      });
+    } // ← ❗這裡原本少了結尾的大括號！現在補上
+    stmt.finalize(); // 放這裡才對
+  }
+});
+
 
         // 創建 Menu_Items 表
         db.run(`CREATE TABLE IF NOT EXISTS Menu_Items (
