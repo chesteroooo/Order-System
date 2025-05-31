@@ -490,12 +490,15 @@
             </div>
         </div>
     </div>
-    <button id="test-sound" style="position: fixed; top: 10px; right: 10px; z-index: 1000;">
-        測試提示音 🔔
-    </button>
 
     <audio id="audio-notification" src="sounds/ding.mp3" preload="auto"></audio>
     <script>
+
+        document.addEventListener('DOMContentLoaded', () => {
+        setupWebSocket();
+        loadOrders();
+
+        })
         function playNotificationSound() {
             const audio = document.getElementById('audio-notification');
             if (audio) {
@@ -505,6 +508,7 @@
                 });
             }
         }
+
 
 
 
@@ -556,6 +560,8 @@
             ws.onmessage = (event) => {
                 const message = JSON.parse(event.data);
                 if (message.type === 'newOrder') {
+
+                    playNotificationSound();
                     const newOrder = {
                         ...message.data,
                         Items: JSON.parse(message.data.Items),
@@ -583,7 +589,7 @@
                     // 當收到刪除時，重新載入訂單數據
                     loadOrders();
                 }
-                playNotificationSound();
+                
             };
 
             ws.onclose = () => {
