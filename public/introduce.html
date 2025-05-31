@@ -122,32 +122,28 @@
       width: 90%;
       max-width: 1200px;
     }
+    
     .back-button {
-      display: inline-block;
-      padding: 12px 20px;
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .back-button button {
+      padding: 12px 30px;
       font-size: 16px;
-      font-weight: 700;
-      background-color: var(--bg-gray);
-      color: var(--text-main);
-      border: 2px solid var(--border-color);
+      background: var(--bg-gray);
+      color: var(--text-dark);
+      border: none;
       border-radius: 8px;
       cursor: pointer;
-      text-decoration: none;
-      margin: 20px auto;
-      transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-      animation: pulse 2s infinite ease-in-out;
+      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
     }
 
-    .back-button:hover {
-      background-color: var(--accent);
+    .back-button button:hover {
+      background: var(--accent);
       color: #fff;
-      transform: scale(1.05);
-      box-shadow: 0 4px 12px rgba(75, 66, 49, 0.3);
-      animation: none;
-    }
-
-    .back-button:active {
-      animation: bounce 0.2s ease;
+      transform: translateY(-3px);
+      box-shadow: 0 4px 10px var(--shadow);
     }
 
     .dish-card {
@@ -338,9 +334,9 @@
     <button class="menu-toggle" onclick="toggleMenu()">☰</button>
     <h1>志學燒肉飯</h1>
     <div class="dropdown" id="menuDropdown">
-      <a href="aboutus.html">關於我們</a>
-      <a href="introduce.html">餐點介紹</a>
-      <a href="feedback.html">意見回饋</a>
+      <a id="linkAbout" href="aboutus.html">關於我們</a>
+      <a id="linkIntroduce" href="introduce.html">餐點介紹</a>
+      <a id="linkFeedback" href="feedback.html">意見回饋</a>
     </div>
   </div>
   <hr class="divider" />
@@ -436,6 +432,28 @@
         }
       });
     });
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+    // 1. 先從當前 URL 拿到 "?table=XXX"
+    const params = new URLSearchParams(window.location.search);
+    const table = params.get('table');
+
+    // 如果 URL 確實帶有 table 參數，我們就把它附加到下方連結
+    if (table) {
+      // 2. 找到三個要帶 param 的 <a>，然後把原本的 href 改成 "頁面.html?table=XXX"
+      const t = encodeURIComponent(table);
+      const aboutLink = document.getElementById('linkAbout');
+      const introduceLink = document.getElementById('linkIntroduce');
+      const feedbackLink = document.getElementById('linkFeedback');
+
+      // 假設你的 href 原本寫的是 aboutus.html、introduce.html、feedback.html
+      // 這裡直接把 ?table=XXX 加到後面
+      if (aboutLink)       aboutLink.href = `aboutus.html?table=${t}`;
+      if (introduceLink)   introduceLink.href = `introduce.html?table=${t}`;
+      if (feedbackLink)    feedbackLink.href = `feedback.html?table=${t}`;
+    }
+  });
   </script>
 </body>
 </html>
