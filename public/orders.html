@@ -490,6 +490,10 @@
             </div>
         </div>
     </div>
+    <button id="test-sound" style="position: fixed; top: 10px; right: 10px; z-index: 1000;">
+        測試提示音 🔔
+    </button>
+
     <audio id="audio-notification" src="sounds/ding.mp3" preload="auto"></audio>
     <script>
         function playNotificationSound() {
@@ -501,6 +505,8 @@
                 });
             }
         }
+
+
 
         let ordersData = [];
         let previousOrderCount = 0;
