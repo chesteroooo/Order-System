@@ -188,7 +188,7 @@ const dbInit = new Promise((resolve, reject) => {
                             '星期三': ['11:30', '13:30', '16:30', '20:00', 0]
                         };
 
-                        const stmt = db.prepare(`INSERT OR REPLACE INTO Store_Schedule (Date, DayOfWeek, MorningStart, MorningEnd, EveningStart, EveningEnd, IsClosedToday, StoreName, Address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+                        const stmt = db.prepare(`INSERT OR IGNORE INTO Store_Schedule (Date, DayOfWeek, MorningStart, MorningEnd, EveningStart, EveningEnd, IsClosedToday, StoreName, Address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`);
                         for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
                             const dateStr = date.toISOString().split('T')[0];
                             const dayOfWeek = date.toLocaleDateString('zh-TW', { weekday: 'long' });
@@ -533,7 +533,7 @@ app.post('/store-info/schedule', authenticate, (req, res) => {
                 res.status(500).json({ error: err.message });
                 return;
             }
-             cache.del(`storeSchedule:${Date}`);
+            cache.del('storeSchedule');
             logger.info(`營業時間已更新，影響 ${this.changes} 行，緩存已清除`);
             res.json({ message: '營業時間已更新', changes: this.changes });
         }
