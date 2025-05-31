@@ -340,32 +340,18 @@
 
   <script>
     let pollingInterval;
+    let ws;
 
     function toggleMenu() {
       const menu = document.getElementById("menuDropdown");
       menu.style.display = menu.style.display === "block" ? "none" : "block";
     }
 
-      document.addEventListener('DOMContentLoaded', () => {
-      // 由於這是外帶頁，mode 固定寫成 takeout
-      const mode = 'takeout';
-      const eMode = encodeURIComponent(mode);
-
-      // 1) 更新下拉選單中的三個 <a>，讓它們都帶 ?mode=takeout
-      const aboutLink     = document.getElementById('linkAbout');
-      const introduceLink = document.getElementById('linkIntroduce');
-      const feedbackLink  = document.getElementById('linkFeedback');
-
-      if (aboutLink)     aboutLink.href     = `aboutus.html?mode=${eMode}`;
-      if (introduceLink) introduceLink.href = `introduce.html?mode=${eMode}`;
-      if (feedbackLink)  feedbackLink.href  = `feedback.html?mode=${eMode}`;
-    });
-
-
     function goBack() {
       sessionStorage.removeItem('takeawayOrder');
       localStorage.removeItem('cart');
       if (pollingInterval) clearInterval(pollingInterval);
+      if (ws) ws.close();
       window.location.href = "mainmenu_takeout.html";
     }
 
@@ -437,7 +423,7 @@
 
       console.log(`查詢訂單狀態，OrderID: ${orderId}, 時間: ${new Date().toLocaleString('zh-TW')}`);
       try {
-        const response = await fetch(`/api/takeaway-orders/${orderId}`, {
+        const response = await fetch(`http://localhost:5500/api/takeaway-orders/${orderId}`, {
           method: 'GET'
         });
         console.log(`回應狀態: ${response.status}`);
@@ -454,29 +440,37 @@
       }
     }
 
-    // 檢查是否為週六
-    // function isSaturday(date) {
-    //   return date.getDay() === 7; // 0 = 週日, 1 = 週一, ..., 6 = 週六
-    // }
+    async function fetchStoreSchedule(date) {
+      try {
+        const response = await fetch(`http://localhost:5500/api/store-schedule?date=${date}`, {
+          method: 'GET'
+        });
+        if (!response.ok) throw new Error('無法獲取營業時間');
+        return await response.json();
+      } catch (error) {
+        console.error('獲取營業時間失敗:', error);
+        return null;
+      }
+    }
 
-    // // 檢查時間是否在營業時間內
-    // function isWithinBusinessHours(date) {
-    //   const hours = date.getHours();
-    //   const minutes = date.getMinutes();
-    //   const timeInMinutes = hours * 60 + minutes;
-    //   // 營業時間：11:30–13:30 (690–810 分鐘), 16:30–20:30 (990–1230 分鐘)
-    //   return (timeInMinutes >= 690 && timeInMinutes <= 810) || 
-    //          (timeInMinutes >= 990 && timeInMinutes <= 2000);
-    // }
+    function isWithinBusinessHours(schedule, date) {
+      if (!schedule || schedule.IsClosedToday) return false;
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
+      const timeInMinutes = hours * 60 + minutes;
+      const morningStart = schedule.MorningStart ? parseTimeToMinutes(schedule.MorningStart) : -1;
+      const morningEnd = schedule.MorningEnd ? parseTimeToMinutes(schedule.MorningEnd) : -1;
+      const eveningStart = schedule.EveningStart ? parseTimeToMinutes(schedule.EveningStart) : -1;
+      const eveningEnd = schedule.EveningEnd ? parseTimeToMinutes(schedule.EveningEnd) : -1;
 
-    // 格式化日期時間為 datetime-local 格式
-    function formatDateTimeLocal(date) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      return `${year}-${month}-${day}T${hours}:${minutes}`;
+      return (morningStart !== -1 && morningEnd !== -1 && timeInMinutes >= morningStart && timeInMinutes <= morningEnd) ||
+             (eveningStart !== -1 && eveningEnd !== -1 && timeInMinutes >= eveningStart && timeInMinutes <= eveningEnd);
+    }
+
+    function parseTimeToMinutes(timeStr) {
+      if (!timeStr) return -1;
+      const [hours, minutes] = timeStr.split(':').map(Number);
+      return hours * 60 + minutes;
     }
 
     async function submitTakeawayOrder() {
@@ -493,31 +487,35 @@
         return;
       }
 
-      // 自動設定取餐時間為當前時間 + 15 分鐘
       const now = new Date();
-      const pickupDate = new Date(now.getTime() + 15 * 60 * 1000); // 當前時間 + 15 分鐘
-      const pickup = formatDateTimeLocal(pickupDate);
+      const dateStr = now.toISOString().split('T')[0];
+      const schedule = await fetchStoreSchedule(dateStr);
+      if (!schedule) {
+        alert('無法獲取當日營業時間，請稍後重試');
+        return;
+      }
 
-      // // 驗證取餐時間
-      // if (isSaturday(pickupDate)) {
-      //   alert('週六為公休日，請於營業日下單');
-      //   return;
-      // }
+      if (schedule.IsClosedToday) {
+        alert('今日為休息日，無法下單');
+        return;
+      }
 
-      // if (!isWithinBusinessHours(pickupDate)) {
-      //   alert('目前非營業時間（11:30–13:30 或 16:30–20:30），請於營業時間內下單');
-      //   return;
-      // }
+      if (!isWithinBusinessHours(schedule, now)) {
+        alert(`目前非營業時間（${schedule.MorningStart || '無'}–${schedule.MorningEnd || '無'} 或 ${schedule.EveningStart || '無'}–${schedule.EveningEnd || '無'}），請於營業時間內下單`);
+        return;
+      }
+
+      const pickupDate = new Date(now.getTime() + 15 * 60 * 1000);
+      const pickup = pickupDate.toISOString();
 
       const items = cart.map(i => ({ name: i.name, price: i.price, quantity: i.quantity }));
       const total = items.reduce((s, i) => s + i.price * i.quantity, 0);
 
-      const nowForId = new Date();
-      const YYYY = nowForId.getFullYear();
-      const MM = String(nowForId.getMonth() + 1).padStart(2, '0');
-      const DD = String(nowForId.getDate()).padStart(2, '0');
+      const YYYY = now.getFullYear();
+      const MM = String(now.getMonth() + 1).padStart(2, '0');
+      const DD = String(now.getDate()).padStart(2, '0');
       try {
-        const maxSeqRes = await fetch('/api/takeaway-orders/max-sequence');
+        const maxSeqRes = await fetch('http://localhost:5500/api/takeaway-orders/max-sequence');
         if (!maxSeqRes.ok) throw new Error(`獲取序號失敗: ${maxSeqRes.status}`);
         const { maxSequence } = await maxSeqRes.json();
         const next = String((maxSequence || 0) + 1).padStart(3, '0');
@@ -531,13 +529,13 @@
           Items: items,
           Notes: '',
           TotalAmount: total,
-          CreatedAt: nowForId.toISOString(),
+          CreatedAt: now.toISOString(),
           Status: '已送單',
           PickupTime: pickupDate.toISOString()
         };
 
         console.log('提交訂單 payload:', JSON.stringify(payload));
-        const res = await fetch('/api/takeaway-orders', {
+        const res = await fetch('http://localhost:5500/api/takeaway-orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -574,7 +572,45 @@
       }
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
+    function setupWebSocket() {
+      ws = new WebSocket('ws://localhost:5500');
+      ws.onopen = () => {
+        console.log('WebSocket 連線已建立');
+      };
+      ws.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        console.log('收到 WebSocket 消息:', message);
+        if (message.type === 'scheduleUpdate') {
+          console.log('營業時間已更新，重新獲取當日營業時間');
+          const now = new Date();
+          const dateStr = now.toISOString().split('T')[0];
+          fetchStoreSchedule(dateStr);
+        }
+      };
+      ws.onclose = () => {
+        console.log('WebSocket 連線已關閉');
+      };
+      ws.onerror = (error) => {
+        console.error('WebSocket 錯誤:', error);
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 由於這是外帶頁，mode 固定寫成 takeout
+      const mode = 'takeout';
+      const eMode = encodeURIComponent(mode);
+
+      // 1) 更新下拉選單中的三個 <a>，讓它們都帶 ?mode=takeout
+      const aboutLink     = document.getElementById('linkAbout');
+      const introduceLink = document.getElementById('linkIntroduce');
+      const feedbackLink  = document.getElementById('linkFeedback');
+
+      if (aboutLink)     aboutLink.href     = `aboutus.html?mode=${eMode}`;
+      if (introduceLink) introduceLink.href = `introduce.html?mode=${eMode}`;
+      if (feedbackLink)  feedbackLink.href  = `feedback.html?mode=${eMode}`;
+    });
+
+    window.addEventListener('DOMContentLoaded', async () => {
       console.log('頁面加載完成');
       document.getElementById('name').value = '';
       document.getElementById('phone').value = '';
@@ -599,6 +635,8 @@
         pollingInterval = setInterval(fetchOrderStatus, 5000);
         console.log('輪詢已啟動，間隔 5 秒');
       }
+
+      setupWebSocket();
     });
   </script>
 </body>

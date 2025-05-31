@@ -98,12 +98,12 @@
   .navbar .table-number {
     background-color: #e8e2d0;
     border-radius: 50%;
-    padding: 8px;
-    font-size: 14px;
+    padding: 8px; /* Reduced padding to fit text */
+    font-size: 14px; /* Slightly smaller font */
     text-align: center;
     color: #4b4231;
     border: 2px solid #b7ae99;
-    min-width: 4rem;
+    min-width: 4rem; /* Relative units for scaling */
     min-height: 4rem;
     display: flex;
     flex-direction: column;
@@ -111,8 +111,8 @@
     align-items: center;
     box-shadow: 0 2px 4px rgba(75, 66, 49, 0.1);
     transition: transform 0.3s ease;
-    line-height: 1.2;
-    overflow: hidden;
+    line-height: 1.2; /* Tighter line height to fit text */
+    overflow: hidden; /* Prevent text overflow */
   }
   .navbar .table-number:hover {
     transform: rotate(10deg);
@@ -271,37 +271,32 @@
     background-color: currentColor;
   }
   .cart-button {
-position: fixed;            /* 新增：固定在視窗 */
-  bottom: 20px;               /* 離底部 20px */
-  left: 50%;                  /* 水平置中 */
-  transform: translateX(-50%);
-width: 80%;               /* 占视口宽度的 80% */
-  /* max-width: 300px; */   /* 注释掉或删掉 */
-  max-width: 600px;    
-  /* 下面都是你原本的樣式 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 12px 20px;
-  background-color: #cfc7b8;
-  color: #4b4231;
-  font-weight: 700;
-  font-size: 18px;
-  border-radius: 8px;
-  cursor: pointer;
-  border: 2px solid #b7ae99;
-  text-decoration: none;
-  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-  animation: pulse 2s infinite ease-in-out;
-
-  margin: 0;                  /* 取代原來的 margin:20px auto */
-  z-index: 1000;              /* 確保它浮在最上層 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 20px;
+    background-color: #cfc7b8;
+    color: #4b4231;
+    font-weight: 700;
+    font-size: 18px;
+    margin: 20px auto;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid #b7ae99;
+    text-decoration: none;
+    max-width: 300px;
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    animation: pulse 2s infinite ease-in-out;
   }
   .cart-button:hover {
     background-color: #8b7b4c;
     color: #fff;
+    transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(75, 66, 49, 0.3);
     animation: none;
+  }
+  .cart-button:active {
+    animation: bounce 0.2s ease;
   }
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
@@ -348,9 +343,9 @@ width: 80%;               /* 占视口宽度的 80% */
       letter-spacing: 1.5px;
     }
     .navbar .table-number {
-      min-width: 3.5rem;
+      min-width: 3.5rem; /* Smaller size */
       min-height: 3.5rem;
-      font-size: 12px;
+      font-size: 12px; /* Smaller font */
       padding: 6px;
     }
     .tab {
@@ -396,9 +391,9 @@ width: 80%;               /* 占视口宽度的 80% */
       left: 10px;
     }
     .navbar .table-number {
-      min-width: 3rem;
+      min-width: 3rem; /* Even smaller */
       min-height: 3rem;
-      font-size: 11px;
+      font-size: 11px; /* Smallest font */
       padding: 5px;
     }
   }
@@ -428,6 +423,7 @@ width: 80%;               /* 占视口宽度的 80% */
       查看訂單內容　$<span id="cart-total">0</span>
   </a>
   <script>
+
      const qs = window.location.search;     // 例如 "?table=B03"
   const btn = document.getElementById('view-cart');
   const params      = new URLSearchParams(window.location.search);
@@ -436,70 +432,10 @@ width: 80%;               /* 占视口宽度的 80% */
   // 动态把 href 设成 order.html?table=B03
   btn.href = `order.html${qs}`;
 
-
   function toggleMenu() {
     const dropdown = document.getElementById('menuDropdown');
     dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
   }
-
-  // function isBusinessHours() {
-  //   const now = new Date();
-  //   const day = now.getDay(); // 0 = Sunday, 6 = Saturday
-  //   const hours = now.getHours();
-  //   const minutes = now.getMinutes();
-  //   const timeInMinutes = hours * 60 + minutes;
-
-  //   // Business hours in minutes: 11:30 (690) - 13:30 (810), 16:30 (990) - 20:30 (1230)
-  //   const isOpenTime =
-  //     (timeInMinutes >= 690 && timeInMinutes <= 990) || // 11:30-13:30
-  //     (timeInMinutes >= 990 && timeInMinutes <= 1500); // 16:30-20:30
-  //   const isNotSaturday = day !== 7;
-
-  //   return isOpenTime && isNotSaturday;
-  // }
-
-  // function updateUIBasedOnBusinessHours() {
-  //   const isOpen = isBusinessHours();
-  //   const cartButton = document.querySelector('.cart-button');
-  //   const menuItems = document.querySelectorAll('.item');
-
-  //   if (!isOpen) {
-  //     cartButton.style.pointerEvents = 'none';
-  //     cartButton.style.opacity = '0.5';
-  //     cartButton.style.cursor = 'not-allowed';
-  //     menuItems.forEach(item => {
-  //       const buttons = item.querySelectorAll('.counter button');
-  //       buttons.forEach(button => {
-  //         button.disabled = true;
-  //         button.style.pointerEvents = 'none';
-  //       });
-  //     });
-  //   } else {
-  //     cartButton.style.pointerEvents = 'auto';
-  //     cartButton.style.opacity = '1';
-  //     cartButton.style.cursor = 'pointer';
-  //     menuItems.forEach(item => {
-  //       const buttons = item.querySelectorAll('.counter button');
-  //       buttons.forEach(button => {
-  //         button.disabled = item.querySelector('.status').textContent !== '供應中';
-  //         button.style.pointerEvents = button.disabled ? 'none' : 'auto';
-  //       });
-  //     });
-  //   }
-  // }
-
-  // function checkBusinessHoursPeriodically() {
-  //   updateUIBasedOnBusinessHours();
-  //   setInterval(updateUIBasedOnBusinessHours, 60000); // Check every minute
-  // }
-
-  // function checkOrderSubmission() {
-  //   if (!isBusinessHours()) {
-  //     alert('非營業時間，無法點餐');
-  //     return false; // Prevent navigation
-  //   }
-  //   return true; // Allow navigation
-  // }
 
   let currentCategory = 'Bento';
   let totalPrice = 0;
@@ -587,7 +523,7 @@ width: 80%;               /* 占视口宽度的 80% */
         plusBtn.disabled = item.Status !== '供應中';
 
         plusBtn.addEventListener('click', () => {
-          if (item.Status !== '供應中' || !isBusinessHours()) return;
+          if (item.Status !== '供應中') return;
           let count = parseInt(countSpan.textContent);
           count++;
           countSpan.textContent = count;
@@ -600,7 +536,7 @@ width: 80%;               /* 占视口宽度的 80% */
         });
 
         minusBtn.addEventListener('click', () => {
-          if (item.Status !== '供應中' || !isBusinessHours()) return;
+          if (item.Status !== '供應中') return;
           let count = parseInt(countSpan.textContent);
           if (count > 0) {
             count--;
@@ -635,7 +571,6 @@ width: 80%;               /* 占视口宽度的 80% */
       filterMenu(currentCategory);
       setActiveTab(currentCategory);
       updateCartTotal();
-      updateUIBasedOnBusinessHours(); // Ensure UI reflects business hours after menu load
     } catch (error) {
       console.error('取得菜單時發生錯誤:', error);
     }
@@ -664,7 +599,7 @@ width: 80%;               /* 占视口宽度的 80% */
     });
   }
 
-   document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', () => {
     // 1) 先解析當前 URL 的 mode 和 table
     const params = new URLSearchParams(window.location.search);
     const mode  = params.get('mode');   // 例如 "dinein"
@@ -689,7 +624,6 @@ width: 80%;               /* 占视口宽度的 80% */
 
   window.onload = () => {
     loadMenu();
-    // checkBusinessHoursPeriodically();
   };
   </script>
 </body>

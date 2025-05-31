@@ -271,37 +271,32 @@
     background-color: currentColor;
   }
   .cart-button {
-position: fixed;            /* 新增：固定在視窗 */
-  bottom: 20px;               /* 離底部 20px */
-  left: 50%;                  /* 水平置中 */
-  transform: translateX(-50%);
-width: 80%;               /* 占视口宽度的 80% */
-  /* max-width: 300px; */   /* 注释掉或删掉 */
-  max-width: 600px;    
-  /* 下面都是你原本的樣式 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 12px 20px;
-  background-color: #cfc7b8;
-  color: #4b4231;
-  font-weight: 700;
-  font-size: 18px;
-  border-radius: 8px;
-  cursor: pointer;
-  border: 2px solid #b7ae99;
-  text-decoration: none;
-  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-  animation: pulse 2s infinite ease-in-out;
-
-  margin: 0;                  /* 取代原來的 margin:20px auto */
-  z-index: 1000;              /* 確保它浮在最上層 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 20px;
+    background-color: #cfc7b8;
+    color: #4b4231;
+    font-weight: 700;
+    font-size: 18px;
+    margin: 20px auto;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid #b7ae99;
+    text-decoration: none;
+    max-width: 300px;
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    animation: pulse 2s infinite ease-in-out;
   }
   .cart-button:hover {
     background-color: #8b7b4c;
     color: #fff;
+    transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(75, 66, 49, 0.3);
     animation: none;
+  }
+  .cart-button:active {
+    animation: bounce 0.2s ease;
   }
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
