@@ -13,6 +13,9 @@ const NodeCache = require('node-cache');
 const WebSocket = require('ws');
 const app = express();
 const port = process.env.PORT || 5500;
+const http = require('http');
+const httpServer = http.createServer(app);
+const wss = new WebSocket.Server({ server: httpServer });
 
 // 設置日誌記錄
 const logger = winston.createLogger({
@@ -67,7 +70,7 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true
 }));
-app.use(express.static(path.join(__dirname, '..'))); // 提供根目錄的靜態檔案
+app.use(express.static(path.join(__dirname, 'public'))); // 提供根目錄的靜態檔案
 
 // 身份驗證中間件
 const authenticate = (req, res, next) => {
@@ -86,7 +89,7 @@ app.use((err, req, res, next) => {
 });
 
 // 連接到 SQLite 資料庫
-const dbPath = process.env.DB_PATH || './志學燒肉飯.db';
+const dbPath = process.env.DB_PATH || path.join(__dirname, 'data', '志學燒肉飯.db');
 const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => {
     if (err) {
         logger.error(`無法連接到資料庫: ${err.message}`);
@@ -147,59 +150,65 @@ const dbInit = new Promise((resolve, reject) => {
 
         // 創建 Store_Schedule 表並批量插入數據
         db.run(`CREATE TABLE IF NOT EXISTS Store_Schedule (
-                Date TEXT PRIMARY KEY,
-                DayOfWeek TEXT NOT NULL,
-                MorningStart TIME,
-                MorningEnd TIME,
-                EveningStart TIME,
-                EveningEnd TIME,
-                IsClosedToday BOOLEAN DEFAULT 0,
-                StoreName TEXT,
-                Address TEXT
-            )`, (err) => {
-                if (err) {
-                    logger.error(`創建 Store_Schedule 表失敗: ${err.message}`);
-                    reject(err);
-                } else {
-                    logger.info('Store_Schedule 表已創建');
-                    db.run(`CREATE INDEX IF NOT EXISTS idx_date ON Store_Schedule (Date)`, (err) => {
-                        if (err) {
-                            logger.error(`創建索引失敗: ${err.message}`);
-                            reject(err);
-                        }
-                    });
-
-                    // 動態檢查並生成當前年份的資料
-                    const currentYear = new Date().getFullYear();
-                    const startDate = new Date(`${currentYear}-01-01`);
-                    const endDate = new Date(`${currentYear}-12-31`);
-                    const defaultSchedule = {
-                        '星期四': ['11:30', '13:30', '16:30', '20:00', 0],
-                        '星期五': ['11:30', '13:30', '16:30', '20:00', 0],
-                        '星期六': [null, null, null, null, 1],
-                        '星期日': ['11:30', '13:30', '16:30', '20:00', 0],
-                        '星期一': ['11:30', '13:30', '16:30', '20:00', 0],
-                        '星期二': ['11:30', '13:30', '16:30', '20:00', 0],
-                        '星期三': ['11:30', '13:30', '16:30', '20:00', 0]
-                    };
-
-                    const stmt = db.prepare(`INSERT OR IGNORE INTO Store_Schedule (Date, DayOfWeek, MorningStart, MorningEnd, EveningStart, EveningEnd, IsClosedToday, StoreName, Address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`);
-                    for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
-                        const dateStr = date.toISOString().split('T')[0];
-                        const dayOfWeek = date.toLocaleDateString('zh-TW', { weekday: 'long' });
-                        const [morningStart, morningEnd, eveningStart, eveningEnd, isClosed] = defaultSchedule[dayOfWeek];
-                        stmt.run([dateStr, dayOfWeek, morningStart, morningEnd, eveningStart, eveningEnd, isClosed, '幸福小吃', '台北市中正區幸福路123號']);
+            Date TEXT PRIMARY KEY,
+            DayOfWeek TEXT NOT NULL,
+            MorningStart TIME,
+            MorningEnd TIME,
+            EveningStart TIME,
+            EveningEnd TIME,
+            IsClosedToday BOOLEAN DEFAULT 0,
+            StoreName TEXT,
+            Address TEXT
+        )`, (err) => {
+            if (err) {
+                logger.error(`創建 Store_Schedule 表失敗: ${err.message}`);
+                reject(err);
+            } else {
+                logger.info('Store_Schedule 表已創建');
+                db.run(`CREATE INDEX IF NOT EXISTS idx_date ON Store_Schedule (Date)`, (err) => {
+                    if (err) {
+                        logger.error(`創建索引失敗: ${err.message}`);
+                        reject(err);
                     }
-                    stmt.finalize((err) => {
-                        if (err) {
-                            logger.error(`插入 Store_Schedule 數據失敗: ${err.message}`);
-                            reject(err);
-                        } else {
-                            logger.info('Store_Schedule 初始數據已創建或更新');
+                });
+                db.get('SELECT COUNT(*) AS count FROM Store_Schedule', (err, row) => {
+                    if (err) {
+                        logger.error(`檢查 Store_Schedule 數據失敗: ${err.message}`);
+                        reject(err);
+                    } else if (row.count === 0) {
+                        const startDate = new Date('2025-01-01');
+                        const endDate = new Date('2025-12-31');
+                        const defaultSchedule = {
+                            '星期四': ['11:30', '13:30', '16:30', '20:00', 0],
+                            '星期五': ['11:30', '13:30', '16:30', '20:00', 0],
+                            '星期六': [null, null, null, null, 1],
+                            '星期日': ['11:30', '13:30', '16:30', '20:00', 0],
+                            '星期一': ['11:30', '13:30', '16:30', '20:00', 0],
+                            '星期二': ['11:30', '13:30', '16:30', '20:00', 0],
+                            '星期三': ['11:30', '13:30', '16:30', '20:00', 0]
+                        };
+
+                        const stmt = db.prepare(`INSERT OR REPLACE INTO Store_Schedule (Date, DayOfWeek, MorningStart, MorningEnd, EveningStart, EveningEnd, IsClosedToday, StoreName, Address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+                        for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+                            const dateStr = date.toISOString().split('T')[0];
+                            const dayOfWeek = date.toLocaleDateString('zh-TW', { weekday: 'long' });
+                            const [morningStart, morningEnd, eveningStart, eveningEnd, isClosed] = defaultSchedule[dayOfWeek];
+                            stmt.run([dateStr, dayOfWeek, morningStart, morningEnd, eveningStart, eveningEnd, isClosed, '幸福小吃', '台北市中正區幸福路123號']);
                         }
-                    });
-                }
-            });
+                        stmt.finalize((err) => {
+                            if (err) {
+                                logger.error(`插入 Store_Schedule 數據失敗: ${err.message}`);
+                                reject(err);
+                            } else {
+                                logger.info('Store_Schedule 初始數據已創建');
+                            }
+                        });
+                    } else {
+                        logger.info('Store_Schedule 數據已存在，跳過插入');
+                    }
+                });
+            }
+        });
 
         // 創建 Menu_Items 表
         db.run(`CREATE TABLE IF NOT EXISTS Menu_Items (
@@ -302,10 +311,9 @@ const dbInit = new Promise((resolve, reject) => {
 });
 
 // 創建 WebSocket 伺服器
-const server = app.listen(port, () => {
-    logger.info(`服務器運行在 http://localhost:${port}`);
+httpServer.listen(port, () => {
+  logger.info(`服務器運行在 http://localhost:${port}`);
 });
-const wss = new WebSocket.Server({ server });
 
 // 管理 WebSocket 客戶端
 wss.on('connection', (ws) => {
@@ -526,16 +534,7 @@ app.post('/store-info/schedule', authenticate, (req, res) => {
                 return;
             }
             cache.del('storeSchedule');
-            cache.del(`storeSchedule:${Date}`); // 清除特定日期的緩存
             logger.info(`營業時間已更新，影響 ${this.changes} 行，緩存已清除`);
-
-            // 發送 WebSocket 通知
-            wss.clients.forEach(client => {
-                if (client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify({ type: 'scheduleUpdate', data: { Date } }));
-                }
-            });
-
             res.json({ message: '營業時間已更新', changes: this.changes });
         }
     );
@@ -550,7 +549,6 @@ app.post('/store-info/batch-schedule', authenticate, (req, res) => {
     endDate.setDate(0);
 
     const updates = [];
-    const updatedDates = []; // 記錄更新的日期
     for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
         const dateStr = date.toISOString().split('T')[0];
         const dayOfWeek = date.toLocaleDateString('zh-TW', { weekday: 'long' });
@@ -564,7 +562,6 @@ app.post('/store-info/batch-schedule', authenticate, (req, res) => {
                             logger.error(`批量更新失敗: ${err.message}`);
                             reject(err);
                         } else {
-                            updatedDates.push(dateStr);
                             resolve();
                         }
                     }
@@ -576,18 +573,7 @@ app.post('/store-info/batch-schedule', authenticate, (req, res) => {
     Promise.all(updates)
         .then(() => {
             cache.del('storeSchedule');
-            updatedDates.forEach(date => {
-                cache.del(`storeSchedule:${date}`); // 清除每個更新的日期緩存
-            });
             logger.info(`批量更新成功: ${DayOfWeek} in ${Month}，緩存已清除`);
-
-            // 發送 WebSocket 通知
-            wss.clients.forEach(client => {
-                if (client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify({ type: 'scheduleUpdate', data: { Dates: updatedDates } }));
-                }
-            });
-
             res.json({ message: '批量更新成功' });
         })
         .catch(err => {
@@ -1237,7 +1223,6 @@ app.get('/api/feedback', authenticate, (req, res) => {
     }
 });
 
-// 獲取當日營業時間 API（公開路由，給消費者使用）
 app.get('/api/store-schedule', (req, res) => {
     const date = req.query.date || new Date().toISOString().split('T')[0];
     const cacheKey = `storeSchedule:${date}`;
@@ -1264,6 +1249,7 @@ app.get('/api/store-schedule', (req, res) => {
         });
     }
 });
+
 
 // 關閉資料庫
 process.on('SIGINT', () => {
