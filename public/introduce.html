@@ -122,28 +122,32 @@
       width: 90%;
       max-width: 1200px;
     }
-
     .back-button {
-      text-align: center;
-      margin: 20px 0;
-    }
-
-    .back-button button {
-      padding: 12px 30px;
+      display: inline-block;
+      padding: 12px 20px;
       font-size: 16px;
-      background: var(--bg-gray);
-      color: var(--text-dark);
-      border: none;
+      font-weight: 700;
+      background-color: var(--bg-gray);
+      color: var(--text-main);
+      border: 2px solid var(--border-color);
       border-radius: 8px;
       cursor: pointer;
-      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+      text-decoration: none;
+      margin: 20px auto;
+      transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+      animation: pulse 2s infinite ease-in-out;
     }
 
-    .back-button button:hover {
-      background: var(--accent);
+    .back-button:hover {
+      background-color: var(--accent);
       color: #fff;
-      transform: translateY(-3px);
-      box-shadow: 0 4px 10px var(--shadow);
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(75, 66, 49, 0.3);
+      animation: none;
+    }
+
+    .back-button:active {
+      animation: bounce 0.2s ease;
     }
 
     .dish-card {
