@@ -363,8 +363,8 @@
   <div class="tab-feedback">關於我們</div>
 
   <div style="text-align: center;">
-  <a id="backToMain" class="back-button" href="mainmenu.html">← 回主選單</a>
-</div>
+    <a id="backToMain" class="back-button" href="#">← 回主選單</a>
+  </div>
 
 
   <div class="content">
@@ -392,34 +392,38 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-    // 1. 先從當前 URL 拿到 "?table=XXX"
-    const params = new URLSearchParams(window.location.search);
-    const table = params.get('table');
+      // 1) 先從 URL 拿到 mode 和 table
+      const params = new URLSearchParams(window.location.search);
+      const mode  = params.get('mode');   // "dinein" 或 "takeout"
+      const table = params.get('table');  // 例如 "B03"；若是外帶就可能為 null
 
-    // 如果 URL 確實帶有 table 參數，我們就把它附加到下方連結
-    if (table) {
-      // 2. 找到三個要帶 param 的 <a>，然後把原本的 href 改成 "頁面.html?table=XXX"
-      const t = encodeURIComponent(table);
-      const aboutLink = document.getElementById('linkAbout');
-      const introduceLink = document.getElementById('linkIntroduce');
-      const feedbackLink = document.getElementById('linkFeedback');
+      // 2) 根據 mode 決定回哪一個主選單；並帶回 table (如果有)
+      let mainHref;
+      if (mode === 'takeout') {
+        mainHref = 'mainmenu_takeout.html';
+      } else {
+        // 不指定或是 dinein，一律回到內用主選單
+        mainHref = 'mainmenu.html';
+      }
+      // 把 table 參數也加上去（如果有）
+      if (mode === 'dinein' && table) {
+        mainHref += `?mode=dinein&table=${encodeURIComponent(table)}`;
+      } else {
+        mainHref += `?mode=${encodeURIComponent(mode) || 'dinein'}`;
+      }
 
-      // 假設你的 href 原本寫的是 aboutus.html、introduce.html、feedback.html
-      // 這裡直接把 ?table=XXX 加到後面
-      if (aboutLink)       aboutLink.href = `aboutus.html?table=${t}`;
-      if (introduceLink)   introduceLink.href = `introduce.html?table=${t}`;
-      if (feedbackLink)    feedbackLink.href = `feedback.html?table=${t}`;
-    }
-  });
+      // 3) 設定回主選單的 href
+      document.getElementById('backToMain').href = mainHref;
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const params = new URLSearchParams(window.location.search);
-    const table = params.get('table');
-    if (table) {
-      const backLink = document.getElementById('backToMain');
-      backLink.href = `mainmenu.html?table=${encodeURIComponent(table)}`;
-    }
-  });
+      // 4) （可選）若下拉選單裡的所有 <a> 也需要帶回 mode/table，請一併更新
+      const dropdownLinks = document.querySelectorAll('.dropdown a');
+      dropdownLinks.forEach(link => {
+        const original = link.getAttribute('href').split('?')[0]; 
+        let newHref = `${original}?mode=${encodeURIComponent(mode)}`;
+        if (table) newHref += `&table=${encodeURIComponent(table)}`;
+        link.href = newHref;
+      });
+    });
 
     function toggleMenu() {
       const menu = document.getElementById("menuDropdown");

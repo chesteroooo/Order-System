@@ -583,6 +583,21 @@ width: 80%;               /* 占视口宽度的 80% */
     });
   }
 
+  document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get('mode'); // 應該是 "takeout"
+    if (mode) {
+      const encodedMode = encodeURIComponent(mode);
+      const aboutLink     = document.getElementById('linkAbout');
+      const introduceLink = document.getElementById('linkIntroduce');
+      const feedbackLink  = document.getElementById('linkFeedback');
+
+      if (aboutLink)     aboutLink.href     = `aboutus.html?mode=${encodedMode}`;
+      if (introduceLink) introduceLink.href = `introduce.html?mode=${encodedMode}`;
+      if (feedbackLink)  feedbackLink.href  = `feedback.html?mode=${encodedMode}`;
+    }
+  });
+
   window.onload = () => {
     loadMenu();
   };

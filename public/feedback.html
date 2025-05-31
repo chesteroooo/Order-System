@@ -264,8 +264,8 @@
   <div class="tab-feedback">意見回饋</div>
 
   <div style="text-align: center;">
-    <a id="backToMain" href="mainmenu.html" class="back-button">← 回主選單</a>
-</div>
+    <a id="backToMain" class="back-button" href="#">← 回主選單</a>
+  </div>
 
   <div class="feedback-container">
     <textarea class="feedback-box" placeholder="留下你的評論……"></textarea>
@@ -273,14 +273,7 @@
   </div>
 
   <script>
-     document.addEventListener('DOMContentLoaded', () => {
-    const params = new URLSearchParams(window.location.search);
-    const table = params.get('table');
-    if (table) {
-      const backLink = document.getElementById('backToMain');
-      backLink.href = `mainmenu.html?table=${encodeURIComponent(table)}`;
-    }
-  });
+    
 
     // 選單切換功能
     function toggleMenu() {
@@ -327,26 +320,36 @@
         submitBtn.textContent = '確認送出';
       }
     });
-    document.addEventListener('DOMContentLoaded', () => {
-    // 1. 先從當前 URL 拿到 "?table=XXX"
-    const params = new URLSearchParams(window.location.search);
-    const table = params.get('table');
+       document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const mode  = params.get('mode');   // "dinein" 或 "takeout"
+      const table = params.get('table');  // 例如 "B03" 或 null
 
-    // 如果 URL 確實帶有 table 參數，我們就把它附加到下方連結
-    if (table) {
-      // 2. 找到三個要帶 param 的 <a>，然後把原本的 href 改成 "頁面.html?table=XXX"
-      const t = encodeURIComponent(table);
-      const aboutLink = document.getElementById('linkAbout');
-      const introduceLink = document.getElementById('linkIntroduce');
-      const feedbackLink = document.getElementById('linkFeedback');
+      // 1-1. 动态设置“回主选单”按钮的 href
+      let mainHref;
+      if (mode === 'takeout') {
+        mainHref = 'mainmenu_takeout.html';
+      } else {
+        mainHref = 'mainmenu.html';
+      }
+      if (mode === 'dinein' && table) {
+        mainHref += `?mode=dinein&table=${encodeURIComponent(table)}`;
+      } else if (mode) {
+        mainHref += `?mode=${encodeURIComponent(mode)}`;
+      }
+      document.getElementById('backToMain').href = mainHref;
 
-      // 假設你的 href 原本寫的是 aboutus.html、introduce.html、feedback.html
-      // 這裡直接把 ?table=XXX 加到後面
-      if (aboutLink)       aboutLink.href = `aboutus.html?table=${t}`;
-      if (introduceLink)   introduceLink.href = `introduce.html?table=${t}`;
-      if (feedbackLink)    feedbackLink.href = `feedback.html?table=${t}`;
-    }
-  });
+      // 1-2. 动态更新侧边栏（dropdown）里所有 <a> 链接的 href
+      const dropdownLinks = document.querySelectorAll('.dropdown a');
+      dropdownLinks.forEach(link => {
+        const original = link.getAttribute('href').split('?')[0];
+        let newHref = `${original}?mode=${encodeURIComponent(mode || 'dinein')}`;
+        if (mode === 'dinein' && table) {
+          newHref += `&table=${encodeURIComponent(table)}`;
+        }
+        link.href = newHref;
+      });
+    });
 
   </script>
 </body>
