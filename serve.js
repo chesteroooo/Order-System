@@ -516,7 +516,8 @@ app.post('/store-info/update', authenticate, (req, res) => {
             res.status(500).json({ error: err.message });
             return;
         }
-        cache.del('storeSchedule');
+       cache.del(`storeSchedule:${Date}`); // 把特定那天的快取清掉
+
         logger.info(`店家資訊已更新，影響 ${this.changes} 行，緩存已清除`);
         res.json({ message: '店家資訊已更新', changes: this.changes });
     });
@@ -533,7 +534,7 @@ app.post('/store-info/schedule', authenticate, (req, res) => {
                 res.status(500).json({ error: err.message });
                 return;
             }
-            cache.del('storeSchedule');
+            cache.del(`storeSchedule:${Date}`); // 把特定那天的快取清掉
             logger.info(`營業時間已更新，影響 ${this.changes} 行，緩存已清除`);
             res.json({ message: '營業時間已更新', changes: this.changes });
         }
@@ -1224,38 +1225,31 @@ app.get('/api/feedback', authenticate, (req, res) => {
 });
 
 app.get('/api/store-schedule', (req, res) => {
-    function getLocalDateString(date = new Date()) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-const dateStr = getLocalDateString(); 
+  const dateStr = req.query.date || (() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  })();
 
-    const cacheKey = `storeSchedule:${dateStr}`;
-    const cachedData = cache.get(cacheKey);
+  const cacheKey = `storeSchedule:${dateStr}`;
+  const cachedData = cache.get(cacheKey);
 
-    if (cachedData) {
-        logger.info(`從緩存中獲取當日營業時間: ${dateStr}`);
-        res.json(cachedData);
-    } else {
-        db.get('SELECT * FROM Store_Schedule WHERE Date = ?', [dateStr], (err, row) => {
-            if (err) {
-                logger.error(`獲取當日營業時間失敗: ${err.message}`);
-                res.status(500).json({ error: '資料庫錯誤' });
-                return;
-            }
-            if (!row) {
-                logger.warn(`無當日營業時間數據: ${dateStr}`);
-                res.status(404).json({ error: '無當日營業時間數據' });
-                return;
-            }
-            cache.set(cacheKey, row);
-            logger.info(`成功獲取當日營業時間並緩存: ${dateStr}`);
-            res.json(row);
-        });
+  if (cachedData) {
+    return res.json(cachedData);
+  }
+
+  db.get('SELECT * FROM Store_Schedule WHERE Date = ?', [dateStr], (err, row) => {
+    if (err) {
+      console.error('查詢失敗:', err.message);
+      return res.status(500).json({ error: '資料庫錯誤' });
     }
+    if (!row) {
+      return res.status(404).json({ error: '找不到該日期營業時間' });
+    }
+    cache.set(cacheKey, row);
+    res.json(row);
+  });
 });
+
 
 
 // 關閉資料庫
