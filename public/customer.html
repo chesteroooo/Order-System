@@ -455,19 +455,19 @@
     }
 
     // 檢查是否為週六
-    // function isSaturday(date) {
-    //   return date.getDay() === 6; // 0 = 週日, 1 = 週一, ..., 6 = 週六
-    // }
+    function isSaturday(date) {
+      return date.getDay() === 7; // 0 = 週日, 1 = 週一, ..., 6 = 週六
+    }
 
-    // // 檢查時間是否在營業時間內
-    // function isWithinBusinessHours(date) {
-    //   const hours = date.getHours();
-    //   const minutes = date.getMinutes();
-    //   const timeInMinutes = hours * 60 + minutes;
-    //   // 營業時間：11:30–13:30 (690–810 分鐘), 16:30–20:30 (990–1230 分鐘)
-    //   return (timeInMinutes >= 690 && timeInMinutes <= 810) || 
-    //          (timeInMinutes >= 990 && timeInMinutes <= 1350);
-    // }
+    // 檢查時間是否在營業時間內
+    function isWithinBusinessHours(date) {
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
+      const timeInMinutes = hours * 60 + minutes;
+      // 營業時間：11:30–13:30 (690–810 分鐘), 16:30–20:30 (990–1230 分鐘)
+      return (timeInMinutes >= 690 && timeInMinutes <= 810) || 
+             (timeInMinutes >= 990 && timeInMinutes <= 2000);
+    }
 
     // 格式化日期時間為 datetime-local 格式
     function formatDateTimeLocal(date) {
@@ -498,16 +498,16 @@
       const pickupDate = new Date(now.getTime() + 15 * 60 * 1000); // 當前時間 + 15 分鐘
       const pickup = formatDateTimeLocal(pickupDate);
 
-      // // 驗證取餐時間
-      // if (isSaturday(pickupDate)) {
-      //   alert('週六為公休日，請於營業日下單');
-      //   return;
-      // }
+      // 驗證取餐時間
+      if (isSaturday(pickupDate)) {
+        alert('週六為公休日，請於營業日下單');
+        return;
+      }
 
-      // if (!isWithinBusinessHours(pickupDate)) {
-      //   alert('目前非營業時間（11:30–13:30 或 16:30–20:30），請於營業時間內下單');
-      //   return;
-      // }
+      if (!isWithinBusinessHours(pickupDate)) {
+        alert('目前非營業時間（11:30–13:30 或 16:30–20:30），請於營業時間內下單');
+        return;
+      }
 
       const items = cart.map(i => ({ name: i.name, price: i.price, quantity: i.quantity }));
       const total = items.reduce((s, i) => s + i.price * i.quantity, 0);

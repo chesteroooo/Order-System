@@ -442,21 +442,21 @@ width: 80%;               /* 占视口宽度的 80% */
     dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
   }
 
-  // function isBusinessHours() {
-  //   const now = new Date();
-  //   const day = now.getDay(); // 0 = Sunday, 6 = Saturday
-  //   const hours = now.getHours();
-  //   const minutes = now.getMinutes();
-  //   const timeInMinutes = hours * 60 + minutes;
+  function isBusinessHours() {
+    const now = new Date();
+    const day = now.getDay(); // 0 = Sunday, 6 = Saturday
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const timeInMinutes = hours * 60 + minutes;
 
-  //   // Business hours in minutes: 11:30 (690) - 13:30 (810), 16:30 (990) - 20:30 (1230)
-  //   const isOpenTime =
-  //     (timeInMinutes >= 690 && timeInMinutes <= 990) || // 11:30-13:30
-  //     (timeInMinutes >= 990 && timeInMinutes <= 1500); // 16:30-20:30
-  //   const isNotSaturday = day !== 7;
+    // Business hours in minutes: 11:30 (690) - 13:30 (810), 16:30 (990) - 20:30 (1230)
+    const isOpenTime =
+      (timeInMinutes >= 690 && timeInMinutes <= 990) || // 11:30-13:30
+      (timeInMinutes >= 990 && timeInMinutes <= 1500); // 16:30-20:30
+    const isNotSaturday = day !== 7;
 
-  //   return isOpenTime && isNotSaturday;
-  // }
+    return isOpenTime && isNotSaturday;
+  }
 
   function updateUIBasedOnBusinessHours() {
     const isOpen = isBusinessHours();
