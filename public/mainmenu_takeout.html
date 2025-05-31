@@ -410,9 +410,9 @@ width: 80%;               /* 占视口宽度的 80% */
     <h1>志學燒肉飯</h1>
     <div class="table-number">外帶</div>
     <div class="dropdown" id="menuDropdown">
-      <a href="aboutus.html">關於我們</a>
-      <a href="introduce.html">餐點介紹</a>
-      <a href="feedback.html">意見回饋</a>
+      <a id="linkAbout"     href="aboutus.html">關於我們</a>
+      <a id="linkIntroduce" href="introduce.html">餐點介紹</a>
+      <a id="linkFeedback"  href="feedback.html">意見回饋</a>
     </div>
   </div>
   <div class="tabs">
@@ -588,6 +588,7 @@ width: 80%;               /* 占视口宽度的 80% */
     const mode = params.get('mode'); // 應該是 "takeout"
     if (mode) {
       const encodedMode = encodeURIComponent(mode);
+
       const aboutLink     = document.getElementById('linkAbout');
       const introduceLink = document.getElementById('linkIntroduce');
       const feedbackLink  = document.getElementById('linkFeedback');

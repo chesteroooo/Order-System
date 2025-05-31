@@ -307,10 +307,10 @@
     <h1>志學燒肉飯</h1>
     <div class="table-number">外帶</div>
     <div class="dropdown" id="menuDropdown">
-      <a href="#">關於我們</a>
-      <a href="#">餐點介紹</a>
-      <a href="#">最新消息</a>
-      <a href="#">意見回饋</a>
+      <!-- 在這裡加上對應的 id -->
+      <a id="linkAbout" href="aboutus.html">關於我們</a>
+      <a id="linkIntroduce" href="introduce.html">餐點介紹</a>
+      <a id="linkFeedback" href="feedback.html">意見回饋</a>
     </div>
   </div>
 
@@ -345,6 +345,22 @@
       const menu = document.getElementById("menuDropdown");
       menu.style.display = menu.style.display === "block" ? "none" : "block";
     }
+
+      document.addEventListener('DOMContentLoaded', () => {
+      // 由於這是外帶頁，mode 固定寫成 takeout
+      const mode = 'takeout';
+      const eMode = encodeURIComponent(mode);
+
+      // 1) 更新下拉選單中的三個 <a>，讓它們都帶 ?mode=takeout
+      const aboutLink     = document.getElementById('linkAbout');
+      const introduceLink = document.getElementById('linkIntroduce');
+      const feedbackLink  = document.getElementById('linkFeedback');
+
+      if (aboutLink)     aboutLink.href     = `aboutus.html?mode=${eMode}`;
+      if (introduceLink) introduceLink.href = `introduce.html?mode=${eMode}`;
+      if (feedbackLink)  feedbackLink.href  = `feedback.html?mode=${eMode}`;
+    });
+
 
     function goBack() {
       sessionStorage.removeItem('takeawayOrder');

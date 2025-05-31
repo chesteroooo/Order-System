@@ -579,26 +579,29 @@ const qs = window.location.search;
     }
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    // 1. 先從當前 URL 拿到 "?table=XXX"
-    const params = new URLSearchParams(window.location.search);
-    const table = params.get('table');
+ document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const mode = params.get('mode') || 'dinein';         // 取 mode (若沒帶就預設 dinein)
+      const table = params.get('table') || '';             // 取桌號 (若沒帶就是空字串)
+      const eMode = encodeURIComponent(mode);
+      const eTable = encodeURIComponent(table);
 
-    // 如果 URL 確實帶有 table 參數，我們就把它附加到下方連結
-    if (table) {
-      // 2. 找到三個要帶 param 的 <a>，然後把原本的 href 改成 "頁面.html?table=XXX"
-      const t = encodeURIComponent(table);
-      const aboutLink = document.getElementById('linkAbout');
+      // 三個要帶參數的 <a>，必須在 HTML 裡加上這些 id
+      const aboutLink     = document.getElementById('linkAbout');
       const introduceLink = document.getElementById('linkIntroduce');
-      const feedbackLink = document.getElementById('linkFeedback');
+      const feedbackLink  = document.getElementById('linkFeedback');
 
-      // 假設你的 href 原本寫的是 aboutus.html、introduce.html、feedback.html
-      // 這裡直接把 ?table=XXX 加到後面
-      if (aboutLink)       aboutLink.href = `aboutus.html?table=${t}`;
-      if (introduceLink)   introduceLink.href = `introduce.html?table=${t}`;
-      if (feedbackLink)    feedbackLink.href = `feedback.html?table=${t}`;
-    }
-  });
+      if (aboutLink) {
+        aboutLink.href = `aboutus.html?mode=${eMode}${table ? '&table=' + eTable : ''}`;
+      }
+      if (introduceLink) {
+        introduceLink.href = `introduce.html?mode=${eMode}${table ? '&table=' + eTable : ''}`;
+      }
+      if (feedbackLink) {
+        feedbackLink.href = `feedback.html?mode=${eMode}${table ? '&table=' + eTable : ''}`;
+      }
+    });
+
 
   window.onload = () => {
     // 新增：恢復備註內容

@@ -316,10 +316,10 @@
     <button class="menu-toggle" onclick="toggleMenu()">☰</button>
     <h1>志學燒肉飯</h1>
     <div class="table-number">外帶</div>
-    <div class="dropdown" id="menuDropdown">
-      <a href="aboutus.html">關於我們</a>
-      <a href="introduce.html">餐點介紹</a>
-      <a href="feedback.html">意見回饋</a>
+     <div class="dropdown" id="menuDropdown">
+      <a id="linkAbout" href="aboutus.html">關於我們</a>
+      <a id="linkIntroduce" href="introduce.html">餐點介紹</a>
+      <a id="linkFeedback" href="feedback.html">意見回饋</a>
     </div>
   </div>
 
@@ -429,8 +429,30 @@
     }
 
     // 導向到 customer.html
-    location.href = 'customer.html';
+    location.href = 'customer.html?mode=takeout';
   }
+
+   document.addEventListener('DOMContentLoaded', () => {
+      // 強制 mode = "takeout"
+      const mode = 'takeout';
+      const eMode = encodeURIComponent(mode);
+
+      // 三個下拉 <a> 必須帶 id，才能被抓到
+      const aboutLink     = document.getElementById('linkAbout');
+      const introduceLink = document.getElementById('linkIntroduce');
+      const feedbackLink  = document.getElementById('linkFeedback');
+
+      if (aboutLink)     aboutLink.href     = `aboutus.html?mode=${eMode}`;
+      if (introduceLink) introduceLink.href = `introduce.html?mode=${eMode}`;
+      if (feedbackLink)  feedbackLink.href  = `feedback.html?mode=${eMode}`;
+    });
+
+    // 5. window.onload：恢復備註並 renderCart()
+    window.onload = () => {
+      const savedNotes = localStorage.getItem('orderNotes') || '';
+      document.getElementById('note').value = savedNotes;
+      renderCart();
+    };
 
   window.onload = () => {
     renderCart();
