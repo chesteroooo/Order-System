@@ -352,7 +352,7 @@
       localStorage.removeItem('cart');
       if (pollingInterval) clearInterval(pollingInterval);
       if (ws) ws.close();
-      window.location.href = "mainmenu_takeout.html";
+      window.location.href =`mainmenu_takeout.html?mode=${encodeURIComponent(mode)}`;
     }
 
     function renderOrderedItems(items) {
