@@ -13,6 +13,9 @@ const NodeCache = require('node-cache');
 const WebSocket = require('ws');
 const app = express();
 const port = process.env.PORT || 5500;
+const http = require('http');
+const httpServer = http.createServer(app);
+const wss = new WebSocket.Server({ server: httpServer });
 
 // 設置日誌記錄
 const logger = winston.createLogger({
@@ -308,10 +311,9 @@ const dbInit = new Promise((resolve, reject) => {
 });
 
 // 創建 WebSocket 伺服器
-const server = app.listen(port, () => {
-    logger.info(`服務器運行在 http://localhost:${port}`);
+httpServer.listen(port, () => {
+  logger.info(`服務器運行在 http://localhost:${port}`);
 });
-const wss = new WebSocket.Server({ server });
 
 // 管理 WebSocket 客戶端
 wss.on('connection', (ws) => {

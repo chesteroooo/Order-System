@@ -526,8 +526,13 @@
 
         // 設置 WebSocket 連線
         function setupWebSocket() {
-            ws = new WebSocket('ws://localhost:5500');
-
+             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        // 2. 取出當前 host（包含 domain + 端口，如果有的話）
+        const host = window.location.host;
+        // 3. 拼出完整的 WebSocket URL
+        const wsUrl = `${protocol}//${host}`;
+            console.log('嘗試用 WebSocket 連到：', wsUrl);
+        ws = new WebSocket(wsUrl);
             ws.onopen = () => {
                 console.log('WebSocket 連線已建立');
             };
