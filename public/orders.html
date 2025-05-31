@@ -490,8 +490,18 @@
             </div>
         </div>
     </div>
-
+    <audio id="audio-notification" src="sounds/ding.mp3" preload="auto"></audio>
     <script>
+        function playNotificationSound() {
+            const audio = document.getElementById('audio-notification');
+            if (audio) {
+                audio.currentTime = 0;  // 強制從頭播放
+                audio.play().catch(err => {
+                    console.warn('播放提示音失敗：', err);
+                });
+            }
+        }
+
         let ordersData = [];
         let previousOrderCount = 0;
         let selectedOrder = null;
@@ -567,6 +577,7 @@
                     // 當收到刪除時，重新載入訂單數據
                     loadOrders();
                 }
+                playNotificationSound();
             };
 
             ws.onclose = () => {
