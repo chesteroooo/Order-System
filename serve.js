@@ -1231,26 +1231,27 @@ app.get('/api/store-schedule', (req, res) => {
   return `${year}-${month}-${day}`;
 }
 const dateStr = getLocalDateString(); 
-    const cacheKey = `storeSchedule:${date}`;
+
+    const cacheKey = `storeSchedule:${dateStr}`;
     const cachedData = cache.get(cacheKey);
 
     if (cachedData) {
-        logger.info(`從緩存中獲取當日營業時間: ${date}`);
+        logger.info(`從緩存中獲取當日營業時間: ${dateStr}`);
         res.json(cachedData);
     } else {
-        db.get('SELECT * FROM Store_Schedule WHERE Date = ?', [date], (err, row) => {
+        db.get('SELECT * FROM Store_Schedule WHERE Date = ?', [dateStr], (err, row) => {
             if (err) {
                 logger.error(`獲取當日營業時間失敗: ${err.message}`);
                 res.status(500).json({ error: '資料庫錯誤' });
                 return;
             }
             if (!row) {
-                logger.warn(`無當日營業時間數據: ${date}`);
+                logger.warn(`無當日營業時間數據: ${dateStr}`);
                 res.status(404).json({ error: '無當日營業時間數據' });
                 return;
             }
             cache.set(cacheKey, row);
-            logger.info(`成功獲取當日營業時間並緩存: ${date}`);
+            logger.info(`成功獲取當日營業時間並緩存: ${dateStr}`);
             res.json(row);
         });
     }
