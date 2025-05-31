@@ -13,6 +13,9 @@ const NodeCache = require('node-cache');
 const WebSocket = require('ws');
 const app = express();
 const port = process.env.PORT || 5500;
+const http = require('http');
+const httpServer = http.createServer(app);
+const wss = new WebSocket.Server({ server: httpServer });
 
 // 設置日誌記錄
 const logger = winston.createLogger({
@@ -67,7 +70,7 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true
 }));
-app.use(express.static(path.join(__dirname, '..'))); // 提供根目錄的靜態檔案
+app.use(express.static(path.join(__dirname, 'public'))); // 提供根目錄的靜態檔案
 
 // 身份驗證中間件
 const authenticate = (req, res, next) => {
@@ -86,7 +89,7 @@ app.use((err, req, res, next) => {
 });
 
 // 連接到 SQLite 資料庫
-const dbPath = process.env.DB_PATH || './志學燒肉飯.db';
+const dbPath = process.env.DB_PATH || path.join(__dirname, 'data', '志學燒肉飯.db');
 const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE, (err) => {
     if (err) {
         logger.error(`無法連接到資料庫: ${err.message}`);
@@ -308,10 +311,9 @@ const dbInit = new Promise((resolve, reject) => {
 });
 
 // 創建 WebSocket 伺服器
-const server = app.listen(port, () => {
-    logger.info(`服務器運行在 http://localhost:${port}`);
+httpServer.listen(port, () => {
+  logger.info(`服務器運行在 http://localhost:${port}`);
 });
-const wss = new WebSocket.Server({ server });
 
 // 管理 WebSocket 客戶端
 wss.on('connection', (ws) => {
@@ -1220,6 +1222,43 @@ app.get('/api/feedback', authenticate, (req, res) => {
         });
     }
 });
+
+app.get('/api/store-schedule', (req, res) => {
+    function getLocalDateString(date = new Date()) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    // ✅ 改這裡：優先讀取 req.query.date，否則用預設 today
+    const dateStr = req.query.date || getLocalDateString();
+
+    const cacheKey = `storeSchedule:${dateStr}`;
+    const cachedData = cache.get(cacheKey);
+
+    if (cachedData) {
+        logger.info(`從緩存中獲取當日營業時間: ${dateStr}`);
+        res.json(cachedData);
+    } else {
+        db.get('SELECT * FROM Store_Schedule WHERE Date = ?', [dateStr], (err, row) => {
+            if (err) {
+                logger.error(`獲取當日營業時間失敗: ${err.message}`);
+                res.status(500).json({ error: '資料庫錯誤' });
+                return;
+            }
+            if (!row) {
+                logger.warn(`無當日營業時間數據: ${dateStr}`);
+                res.status(404).json({ error: '無當日營業時間數據' });
+                return;
+            }
+            cache.set(cacheKey, row);
+            logger.info(`成功獲取當日營業時間並緩存: ${dateStr}`);
+            res.json(row);
+        });
+    }
+});
+
 
 // 關閉資料庫
 process.on('SIGINT', () => {

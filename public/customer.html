@@ -348,10 +348,7 @@
     }
 
     function goBack() {
-      sessionStorage.removeItem('takeawayOrder');
-      localStorage.removeItem('cart');
-      if (pollingInterval) clearInterval(pollingInterval);
-      if (ws) ws.close();
+      
       window.location.href ="order_takeout.html?mode=takeout";
     }
 
