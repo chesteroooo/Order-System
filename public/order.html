@@ -3,320 +3,339 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>購物車訂單內容</title>
+  <title>店內用餐訂單</title>
   <style>
-  :root {
-    --bg-main: #f8f4e9;
-    --bg-secondary: #ede7d5;
-    --bg-hover: #d9d2b6;
-    --bg-gray: #e0d9c8;
-    --border-color: #c2b9a0;
-    --text-main: #3c3522;
-    --text-dark: #2a2618;
-    --status-text: #5e5636;
-    --highlight: #fefbf3;
-    --accent: #8b7e4f;
-    --disabled-bg: #cccccc;
-    --disabled-text: #666666;
-  }
-
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
-  body {
-    font-family: 'Noto Sans TC', sans-serif;
-    background-color: var(--bg-main);
-    color: var(--text-main);
-    line-height: 1.6;
-  }
-
-  .navbar {
-    background-color: var(--bg-main);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 15px 20px;
-    border-bottom: 2px solid var(--border-color);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  .menu-toggle {
-    background: none;
-    border: none;
-    color: var(--text-main);
-    font-size: 28px;
-    cursor: pointer;
-    transition: color 0.3s ease;
-  }
-
-  .menu-toggle:hover {
-    color: var(--accent);
-  }
-
-  .dropdown {
-    display: none;
-    position: absolute;
-    background-color: var(--highlight);
-    color: var(--text-main);
-    top: 60px;
-    left: 20px;
-    border-radius: 8px;
-    z-index: 1;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    animation: slideDown 0.3s ease;
-  }
-
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
+    :root {
+      --bg-main: #f8f4e9;
+      --bg-secondary: #ede7d5;
+      --bg-hover: #d9d2b6;
+      --bg-gray: #e0d9c8;
+      --border-color: #c2b9a0;
+      --text-main: #3c3522;
+      --text-dark: #2a2618;
+      --status-text: #5e5636;
+      --highlight: #fefbf3;
+      --accent: #8b7e4f;
+      --disabled-bg: #cccccc;
+      --disabled-text: #666666;
     }
-    to {
-      opacity: 1;
-      transform: translateY(0);
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-  }
 
-  .dropdown a {
-    display: block;
-    padding: 12px 20px;
-    color: var(--text-main);
-    text-decoration: none;
-    font-size: 16px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.6;
+    }
 
-  .dropdown a:hover {
-    background-color: var(--bg-hover);
-    color: var(--text-dark);
-  }
-
-  .navbar h1 {
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--text-dark);
-    letter-spacing: 1px;
-  }
-
-  .navbar .table-number {
-    background-color: var(--bg-secondary);
-    border-radius: 50%;
-    padding: 12px;
-    font-size: 16px;
-    text-align: center;
-    color: var(--text-main);
-    border: 2px solid var(--border-color);
-    min-width: 50px;
-    font-weight: 600;
-  }
-
-  .back-button {
-    display: block;
-    width: 90%;
-    max-width: 500px;
-    margin: 20px auto 15px;
-    padding: 12px;
-    font-size: 16px;
-    background-color: var(--bg-secondary);
-    color: var(--text-main);
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-  }
-
-  .back-button:hover {
-    background-color: var(--bg-hover);
-    transform: translateY(-2px);
-  }
-
-  .cart-container {
-    padding: 20px;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-
-  .cart-box {
-    border: 2px solid var(--border-color);
-    border-radius: 10px;
-    padding: 20px;
-    background-color: var(--highlight);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  }
-
-  .cart-box h2 {
-    text-align: center;
-    margin: 0 0 20px;
-    color: var(--text-dark);
-    font-size: 24px;
-    font-weight: 700;
-  }
-
-  .cart-item {
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 15px;
-    margin: 10px 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 15px;
-    background-color: var(--bg-gray);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .cart-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  .cart-item span {
-    flex: 1;
-    font-size: 16px;
-    font-weight: 500;
-  }
-
-  .cart-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .cart-controls button {
-    padding: 8px 12px;
-    font-size: 14px;
-    cursor: pointer;
-    background-color: var(--bg-hover);
-    color: var(--text-main);
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-  }
-
-  .cart-controls button:hover {
-    background-color: var(--accent);
-    color: var(--highlight);
-    transform: translateY(-1px);
-  }
-
-  .note-area {
-    border: 2px solid var(--border-color);
-    border-radius: 10px;
-    background-color: var(--bg-secondary);
-    padding: 15px;
-    margin: 15px 0;
-  }
-
-  .note-area label {
-    font-weight: 600;
-    color: var(--text-dark);
-    display: block;
-    margin-bottom: 8px;
-  }
-
-  textarea {
-    width: 100%;
-    height: 100px;
-    background-color: var(--highlight);
-    color: var(--text-main);
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
-    padding: 10px;
-    resize: none;
-    font-size: 14px;
-    transition: border-color 0.3s ease;
-  }
-
-  textarea:focus {
-    outline: none;
-    border-color: var(--accent);
-  }
-
-  .total-box {
-    border: 2px solid var(--border-color);
-    border-radius: 10px;
-    background-color: var(--bg-secondary);
-    padding: 15px;
-    margin: 15px 0;
-    font-size: 18px;
-    font-weight: 600;
-    text-align: center;
-    color: var(--text-dark);
-  }
-
-  .submit-button {
-    display: block;
-    width: 90%;
-    max-width: 500px;
-    margin: 20px auto;
-    padding: 15px;
-    background-color: var(--accent);
-    color: var(--highlight);
-    font-size: 16px;
-    font-weight: 700;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-  }
-
-  .submit-button:hover:not(.status-mode) {
-    background-color: var(--text-dark);
-    transform: translateY(-2px);
-  }
-
-  .submit-button.status-mode {
-    background-color: var(--bg-secondary);
-    color: var(--status-text);
-    cursor: default;
-    transform: none;
-  }
-
-  @media (max-width: 600px) {
     .navbar {
-      padding: 10px 15px;
+      background-color: var(--bg-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 20px;
+      border-bottom: 2px solid var(--border-color);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .menu-toggle {
+      background: none;
+      border: none;
+      color: var(--text-main);
+      font-size: 28px;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .menu-toggle:hover {
+      color: var(--accent);
+    }
+
+    .dropdown {
+      display: none;
+      position: absolute;
+      background-color: var(--highlight);
+      color: var(--text-main);
+      top: 60px;
+      left: 20px;
+      border-radius: 8px;
+      z-index: 1;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .dropdown a {
+      display: block;
+      padding: 12px 20px;
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 16px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .dropdown a:hover {
+      background-color: var(--bg-hover);
+      color: var(--text-dark);
     }
 
     .navbar h1 {
-      font-size: 20px;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: 1px;
     }
 
     .navbar .table-number {
-      font-size: 14px;
-      padding: 8px;
-      min-width: 40px;
+      background-color: var(--bg-secondary);
+      border-radius: 50%;
+      padding: 12px;
+      font-size: 16px;
+      text-align: center;
+      color: var(--text-main);
+      border: 2px solid var(--border-color);
+      min-width: 50px;
+      font-weight: 600;
+    }
+
+    .back-button {
+      display: block;
+      width: 90%;
+      max-width: 500px;
+      margin: 20px auto 15px;
+      padding: 12px;
+      font-size: 16px;
+      background-color: var(--bg-secondary);
+      color: var(--text-main);
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .back-button:hover {
+      background-color: var(--bg-hover);
+      transform: translateY(-2px);
     }
 
     .cart-container {
-      padding: 15px;
+      padding: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .cart-box {
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      padding: 20px;
+      background-color: var(--highlight);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     }
 
     .cart-box h2 {
-      font-size: 20px;
+      text-align: center;
+      margin: 0 0 20px;
+      color: var(--text-dark);
+      font-size: 24px;
+      font-weight: 700;
     }
 
     .cart-item {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 15px;
+      margin: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      background-color: var(--bg-gray);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .cart-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .cart-item span {
+      flex: 1;
+      font-size: 16px;
+      font-weight: 500;
     }
 
     .cart-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cart-controls button {
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      background-color: var(--bg-hover);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .cart-controls button:hover {
+      background-color: var(--accent);
+      color: var(--highlight);
+      transform: translateY(-1px);
+    }
+
+    .note-area {
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      background-color: var(--bg-secondary);
+      padding: 15px;
+      margin: 15px 0;
+    }
+
+    .note-area label {
+      font-weight: 600;
+      color: var(--text-dark);
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    textarea {
       width: 100%;
-      justify-content: space-between;
+      height: 100px;
+      background-color: var(--highlight);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      padding: 10px;
+      resize: none;
+      font-size: 14px;
+      transition: border-color 0.3s ease;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .total-box {
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      background-color: var(--bg-secondary);
+      padding: 15px;
+      margin: 15px 0;
+      font-size: 18px;
+      font-weight: 600;
+      text-align: center;
+      color: var(--text-dark);
     }
 
     .submit-button {
-      font-size: 14px;
-      padding: 12px;
+      display: block;
+      width: 90%;
+      max-width: 500px;
+      margin: 20px auto;
+      padding: 15px;
+      background-color: var(--accent);
+      color: var(--highlight);
+      font-size: 16px;
+      font-weight: 700;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
     }
-  }
+
+    .submit-button:hover:not(.disabled):not(.status-mode) {
+      background-color: var(--text-dark);
+      transform: translateY(-2px);
+    }
+
+    .submit-button.disabled {
+      background-color: var(--disabled-bg);
+      color: var(--disabled-text);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .submit-button.status-mode {
+      background-color: var(--bg-secondary);
+      color: var(--status-text);
+      cursor: default;
+      transform: none;
+    }
+
+    .status-message {
+      text-align: center;
+      color: var(--status-text);
+      font-size: 16px;
+      margin: 10px 0;
+      display: none;
+    }
+
+    .status-message.show {
+      display: block;
+    }
+
+    @media (max-width: 600px) {
+      .navbar {
+        padding: 10px 15px;
+      }
+
+      .navbar h1 {
+        font-size: 20px;
+      }
+
+      .navbar .table-number {
+        font-size: 14px;
+        padding: 8px;
+        min-width: 40px;
+      }
+
+      .cart-container {
+        padding: 15px;
+      }
+
+      .cart-box h2 {
+        font-size: 20px;
+      }
+
+      .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .cart-controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .submit-button {
+        font-size: 14px;
+        padding: 12px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -335,6 +354,7 @@
 
   <div class="cart-container">
     <button class="back-button" onclick="resetAndNavigateToMainMenu()">← 返回主選單</button>
+    <div class="status-message" id="statusMessage"></div>
     <div class="cart-box">
       <h2>餐點內容</h2>
       <!-- 這裡的餐點項目會由 JS 動態產生 -->
@@ -346,240 +366,294 @@
     <div class="total-box">
       <strong>總價格:</strong> $0 <!-- JS 會動態更新 -->
     </div>
-    <button class="submit-button" onclick="submitOrder()">確定送出訂單</button>
+    <button class="submit-button" id="submitButton" onclick="submitOrder()">確定送出訂單</button>
   </div>
 
   <script>
-
-const qs = window.location.search;   
+    const qs = window.location.search;   
   const params  = new URLSearchParams(window.location.search);
   const table  = params.get('table');
   document.getElementById('table-number-display').innerText = table;
 
-  function toggleMenu() {
-    const dropdown = document.getElementById('menuDropdown');
-    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-  }
+    let pollingInterval;
+    let ws;
 
-  function toggleMenu() {
-    const dropdown = document.getElementById('menuDropdown');
-    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-  }
+    function toggleMenu() {
+      const dropdown = document.getElementById('menuDropdown');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
 
-  // 新增：返回主選單時重置訂單資料
-  function resetAndNavigateToMainMenu() {
-    // 清除訂單相關的 localStorage 資料
-    localStorage.removeItem('cart');
-    localStorage.removeItem('orderNotes');
-    localStorage.removeItem('orderSubmitted');
-    localStorage.removeItem('orderId');
-    console.log('訂單資料已重置，準備開始新訂單');
-    // 跳轉到主選單
-    const qs = window.location.search; // e.g. "?table=B03"
+    function resetAndNavigateToMainMenu() {
+      localStorage.removeItem('cart');
+      localStorage.removeItem('orderNotes');
+      localStorage.removeItem('orderSubmitted');
+      localStorage.removeItem('orderId');
+      if (pollingInterval) clearInterval(pollingInterval);
+      if (ws) ws.close();
+      location.href = 'mainmenu.html';
+    }
 
-    // 3. 把這個 qs 拼到 mainmenu.html 後面，就能把桌號參數帶回去：
-    location.href = `mainmenu.html${qs}`;
-  }
+    function renderCart() {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const cartBox = document.querySelector('.cart-box');
+      const isOrderSubmitted = localStorage.getItem('orderSubmitted') === 'true';
 
-  function renderCart() {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const cartBox = document.querySelector('.cart-box');
-    const isOrderSubmitted = localStorage.getItem('orderSubmitted') === 'true';
+      const oldItems = cartBox.querySelectorAll('.cart-item');
+      oldItems.forEach(el => el.remove());
 
-    // 清除舊的餐點項目
-    const oldItems = cartBox.querySelectorAll('.cart-item');
-    oldItems.forEach(el => el.remove());
+      let total = 0;
 
-    let total = 0;
+      cart.forEach((item, i) => {
+        total += item.price * item.quantity;
 
-    for (let i = 0; i < cart.length; i++) {
-      const item = cart[i];
-      total += item.price * item.quantity;
+        const itemDiv = document.createElement('div');
+        itemDiv.classList.add('cart-item');
 
-      const itemDiv = document.createElement('div');
-      itemDiv.classList.add('cart-item');
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = item.name;
 
-      const nameSpan = document.createElement('span');
-      nameSpan.textContent = item.name;
+        const controlsDiv = document.createElement('div');
+        controlsDiv.classList.add('cart-controls');
 
-      const controlsDiv = document.createElement('div');
-      controlsDiv.classList.add('cart-controls');
-
-      // 新增：根據訂單是否已送出決定是否顯示控制按鈕
-      if (!isOrderSubmitted) {
-        const minusBtn = document.createElement('button');
-        minusBtn.textContent = '-';
-        minusBtn.onclick = () => {
-          if (cart[i].quantity > 1) {
-            cart[i].quantity--;
-          } else {
-            cart.splice(i, 1);
-          }
-          localStorage.setItem('cart', JSON.stringify(cart));
-          renderCart();
-        };
-
-        const qtySpan = document.createElement('span');
-        qtySpan.textContent = 'x' + item.quantity;
-
-        const plusBtn = document.createElement('button');
-        plusBtn.textContent = '+';
-        plusBtn.onclick = () => {
-          cart[i].quantity++;
-          localStorage.setItem('cart', JSON.stringify(cart));
-          renderCart();
-        };
-
-        const delBtn = document.createElement('button');
-        delBtn.textContent = '刪除';
-        delBtn.onclick = () => {
-          if (confirm(`確定要刪除 ${item.name} 嗎？`)) {
-            cart.splice(i, 1);
+        if (!isOrderSubmitted) {
+          const minusBtn = document.createElement('button');
+          minusBtn.textContent = '-';
+          minusBtn.onclick = () => {
+            if (item.quantity > 1) {
+              cart[i].quantity--;
+            } else {
+              cart.splice(i, 1);
+            }
             localStorage.setItem('cart', JSON.stringify(cart));
             renderCart();
-          }
-        };
+          };
 
-        controlsDiv.appendChild(minusBtn);
-        controlsDiv.appendChild(qtySpan);
-        controlsDiv.appendChild(plusBtn);
-        controlsDiv.appendChild(delBtn);
-      } else {
-        const qtySpan = document.createElement('span');
-        qtySpan.textContent = 'x' + item.quantity;
-        controlsDiv.appendChild(qtySpan);
-      }
+          const qtySpan = document.createElement('span');
+          qtySpan.textContent = 'x' + item.quantity;
 
-      const priceSpan = document.createElement('span');
-      priceSpan.textContent = `$${item.price * item.quantity}`;
+          const plusBtn = document.createElement('button');
+          plusBtn.textContent = '+';
+          plusBtn.onclick = () => {
+            cart[i].quantity++;
+            localStorage.setItem('cart', JSON.stringify(cart));
+            renderCart();
+          };
 
-      itemDiv.appendChild(nameSpan);
-      itemDiv.appendChild(controlsDiv);
-      itemDiv.appendChild(priceSpan);
+          const delBtn = document.createElement('button');
+          delBtn.textContent = '刪除';
+          delBtn.onclick = () => {
+            if (confirm(`確定要刪除 ${item.name} 嗎？`)) {
+              cart.splice(i, 1);
+              localStorage.setItem('cart', JSON.stringify(cart));
+              renderCart();
+            }
+          };
 
-      cartBox.appendChild(itemDiv);
-    }
+          controlsDiv.appendChild(minusBtn);
+          controlsDiv.appendChild(qtySpan);
+          controlsDiv.appendChild(plusBtn);
+          controlsDiv.appendChild(delBtn);
+        } else {
+          const qtySpan = document.createElement('span');
+          qtySpan.textContent = 'x' + item.quantity;
+          controlsDiv.appendChild(qtySpan);
+        }
 
-    // 更新總價
-    const totalBox = document.querySelector('.total-box');
-    totalBox.innerHTML = `<strong>總價格:</strong> $${total}`;
+        const priceSpan = document.createElement('span');
+        priceSpan.textContent = `$${item.price * item.quantity}`;
 
-    // 新增：如果訂單已送出，查詢並顯示訂單狀態
-    if (isOrderSubmitted) {
-      fetchOrderStatus();
-    }
-  }
+        itemDiv.appendChild(nameSpan);
+        itemDiv.appendChild(controlsDiv);
+        itemDiv.appendChild(priceSpan);
 
-  // 新增：查詢訂單狀態
-  async function fetchOrderStatus() {
-    const orderId = localStorage.getItem('orderId');
-    if (!orderId) {
-      console.log('無訂單編號，跳過狀態查詢');
-      return;
-    }
-
-    console.log('查詢訂單狀態，OrderID:', orderId);
-    try {
-      const response = await fetch(`/api/dinein-orders/${orderId}`, {
-        method: 'GET'
+        cartBox.appendChild(itemDiv);
       });
-      console.log('回應狀態:', response.status);
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`伺服器回傳 ${response.status}: ${errorText}`);
+
+      const totalBox = document.querySelector('.total-box');
+      totalBox.innerHTML = `<strong>總價格:</strong> $${total}`;
+
+      if (isOrderSubmitted) {
+        fetchOrderStatus();
       }
-      const data = await response.json();
-      console.log('回應資料:', data);
-      const submitButton = document.querySelector('.submit-button');
-      submitButton.textContent = `訂單狀態: ${data.Status || '未知'}`;
-      submitButton.classList.add('status-mode');
-      submitButton.onclick = null; // 移除點擊事件，防止重複提交
-    } catch (err) {
-      console.error('查詢訂單狀態失敗：', err);
-      const submitButton = document.querySelector('.submit-button');
-      submitButton.textContent = '訂單狀態: 無法獲取';
+    }
+
+    async function fetchOrderStatus() {
+      const orderId = localStorage.getItem('orderId');
+      if (!orderId) {
+        console.log('無訂單編號，跳過狀態查詢');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/dinein-orders/${orderId}`, {
+          method: 'GET'
+        });
+        if (!response.ok) {
+          throw new Error(`伺服器回傳 ${response.status}`);
+        }
+        const data = await response.json();
+        updateOrderStatus(data.Status || '未知');
+      } catch (err) {
+        console.error('查詢訂單狀態失敗:', err);
+        updateOrderStatus('無法獲取');
+      }
+    }
+
+    function updateOrderStatus(status) {
+      const submitButton = document.getElementById('submitButton');
+      submitButton.textContent = `訂單狀態: ${status}`;
       submitButton.classList.add('status-mode');
       submitButton.onclick = null;
-    }
-  }
-
-  async function submitOrder() {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    if (cart.length === 0) {
-      alert('訂單為空，無法送出訂單。');
-      return;
+      if (status === '已完成') {
+        if (pollingInterval) clearInterval(pollingInterval);
+      }
     }
 
-    const items = cart.map(item => ({
-      name: item.name,
-      price: item.price,
-      quantity: item.quantity
-    }));
-    const notes = document.getElementById('note').value.trim();
-    const totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const tableText = document.querySelector('.table-number').textContent;
-    const tableNumber = tableText.replace('桌號', '').trim();
-
-    // 新增：儲存備註到 localStorage
-    localStorage.setItem('orderNotes', notes);
-
-    // 獲取當前日期 (本地時間 CST)
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-
-    // 查詢當日最大 OrderSequence
-    const response = await fetch('/api/dinein-orders/max-sequence', {
-      method: 'GET'
-    });
-    let orderSequence = '001';
-    if (response.ok) {
-      const data = await response.json();
-      const maxSequence = data.maxSequence || 0;
-      orderSequence = String(parseInt(maxSequence) + 1).padStart(3, '0');
+    async function fetchStoreSchedule(date) {
+      try {
+        const response = await fetch(`/api/store-schedule?date=${date}`, {
+          method: 'GET'
+        });
+        if (!response.ok) throw new Error('無法獲取營業時間');
+        return await response.json();
+      } catch (error) {
+        console.error('獲取營業時間失敗:', error);
+        return null;
+      }
     }
 
-    // 生成 OrderID (10YYYYMMDDSSS)
-    const orderId = `10${year}${month}${day}${orderSequence}`;
+    function isWithinBusinessHours(schedule, date) {
+      if (!schedule || schedule.IsClosedToday) return false;
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
+      const timeInMinutes = hours * 60 + minutes;
+      const morningStart = schedule.MorningStart ? parseTimeToMinutes(schedule.MorningStart) : -1;
+      const morningEnd = schedule.MorningEnd ? parseTimeToMinutes(schedule.MorningEnd) : -1;
+      const eveningStart = schedule.EveningStart ? parseTimeToMinutes(schedule.EveningStart) : -1;
+      const eveningEnd = schedule.EveningEnd ? parseTimeToMinutes(schedule.EveningEnd) : -1;
 
-    const createdAt = now.toISOString();
-    const status = '已送單'; // 修改：確保送出訂單時狀態為「已送單」
-
-    const payload = {
-      OrderID: orderId,
-      OrderSequence: parseInt(orderSequence),
-      TableNumber: tableNumber,
-      Items: items,
-      Notes: notes,
-      TotalAmount: totalAmount,
-      CreatedAt: createdAt,
-      Status: status
-    };
-
-    try {
-      const res = await fetch('/api/dinein-orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) throw new Error(`伺服器回傳 ${res.status}`);
-      alert('✅ 訂單已成功送出！');
-      // 新增：記錄訂單已送出及訂單編號
-      localStorage.setItem('orderSubmitted', 'true');
-      localStorage.setItem('orderId', orderId);
-      console.log('訂單已送出，OrderID:', orderId);
-      renderCart();
-      document.getElementById('note').value = '';
-    } catch (err) {
-      console.error('送出訂單失敗：', err);
-      alert('❌ 送出訂單時發生錯誤，請稍後再試。');
+      return (morningStart !== -1 && morningEnd !== -1 && timeInMinutes >= morningStart && timeInMinutes <= morningEnd) ||
+             (eveningStart !== -1 && eveningEnd !== -1 && timeInMinutes >= eveningStart && timeInMinutes <= eveningEnd);
     }
-  }
 
- document.addEventListener('DOMContentLoaded', () => {
+    function parseTimeToMinutes(timeStr) {
+      if (!timeStr) return -1;
+      const [hours, minutes] = timeStr.split(':').map(Number);
+      return hours * 60 + minutes;
+    }
+
+    async function submitOrder() {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      if (!cart.length) return alert('訂單為空，無法送出訂單');
+
+      const notes = document.getElementById('note').value.trim();
+      localStorage.setItem('orderNotes', notes);
+
+      const now = new Date();
+      const dateStr = now.toISOString().split('T')[0];
+      const schedule = await fetchStoreSchedule(dateStr);
+      if (!schedule) {
+        alert('無法獲取當日營業時間，請稍後重試');
+        return;
+      }
+
+      if (schedule.IsClosedToday) {
+        showStatusMessage('今日為休息日，無法下單');
+        return;
+      }
+
+      if (!isWithinBusinessHours(schedule, now)) {
+        showStatusMessage(`目前非營業時間（${schedule.MorningStart || '無'}–${schedule.MorningEnd || '無'} 或 ${schedule.EveningStart || '無'}–${schedule.EveningEnd || '無'}），請於營業時間內下單`);
+        return;
+      }
+
+      const items = cart.map(item => ({
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity
+      }));
+      const totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const tableText = document.querySelector('.table-number-display').textContent;
+      const tableNumber = tableText.replace('桌號', '').trim();
+
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      try {
+        const maxSeqRes = await fetch('/api/dinein-orders/max-sequence');
+        if (!maxSeqRes.ok) throw new Error(`獲取序號失敗: ${maxSeqRes.status}`);
+        const { maxSequence } = await maxSeqRes.json();
+        const orderSequence = String(parseInt(maxSequence) + 1).padStart(3, '0');
+        const orderId = `10${year}${month}${day}${orderSequence}`;
+
+        const payload = {
+          OrderID: orderId,
+          OrderSequence: parseInt(orderSequence),
+          TableNumber: tableNumber,
+          Items: items,
+          Notes: notes,
+          TotalAmount: totalAmount,
+          CreatedAt: now.toISOString(),
+          Status: '已送單'
+        };
+
+        const res = await fetch('/api/dinein-orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+        alert('✅ 訂單已成功送出！');
+        localStorage.setItem('orderSubmitted', 'true');
+        localStorage.setItem('orderId', orderId);
+        renderCart();
+        document.getElementById('note').value = '';
+        fetchOrderStatus();
+        pollingInterval = setInterval(fetchOrderStatus, 5000);
+      } catch (err) {
+        console.error('送出訂單失敗:', err);
+        alert(`❌ 送出訂單時發生錯誤，請稍後再試: ${err.message}`);
+      }
+    }
+
+    function showStatusMessage(message) {
+      const statusMessage = document.getElementById('statusMessage');
+      statusMessage.textContent = message;
+      statusMessage.classList.add('show');
+      const submitButton = document.getElementById('submitButton');
+      submitButton.classList.add('disabled');
+      submitButton.disabled = true;
+      submitButton.onclick = null;
+    }
+
+    function setupWebSocket() {
+      ws = new WebSocket('ws://localhost:5500');
+      ws.onopen = () => console.log('WebSocket 連線已建立');
+      ws.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        if (message.type === 'scheduleUpdate') {
+          console.log('營業時間已更新，重新獲取當日營業時間');
+          const now = new Date();
+          const dateStr = now.toISOString().split('T')[0];
+          fetchStoreSchedule(dateStr).then(schedule => {
+            if (!isWithinBusinessHours(schedule, now)) {
+              showStatusMessage(`目前非營業時間（${schedule.MorningStart || '無'}–${schedule.MorningEnd || '無'} 或 ${schedule.EveningStart || '無'}–${schedule.EveningEnd || '無'}），請於營業時間內下單`);
+            } else {
+              const statusMessage = document.getElementById('statusMessage');
+              statusMessage.classList.remove('show');
+              const submitButton = document.getElementById('submitButton');
+              submitButton.classList.remove('disabled');
+              submitButton.disabled = false;
+              submitButton.onclick = submitOrder;
+            }
+          });
+        }
+      };
+      ws.onclose = () => console.log('WebSocket 連線已關閉');
+      ws.onerror = (error) => console.error('WebSocket 錯誤:', error);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
       const mode = params.get('mode') || 'dinein';         // 取 mode (若沒帶就預設 dinein)
       const table = params.get('table') || '';             // 取桌號 (若沒帶就是空字串)
@@ -602,13 +676,20 @@ const qs = window.location.search;
       }
     });
 
+    window.onload = async () => {
+      const savedNotes = localStorage.getItem('orderNotes') || '';
+      document.getElementById('note').value = savedNotes;
+      renderCart();
 
-  window.onload = () => {
-    // 新增：恢復備註內容
-    const savedNotes = localStorage.getItem('orderNotes') || '';
-    document.getElementById('note').value = savedNotes;
-    renderCart();
-  };
+      const now = new Date();
+      const dateStr = now.toISOString().split('T')[0];
+      const schedule = await fetchStoreSchedule(dateStr);
+      if (schedule && !isWithinBusinessHours(schedule, now)) {
+        showStatusMessage(`目前非營業時間（${schedule.MorningStart || '無'}–${schedule.MorningEnd || '無'} 或 ${schedule.EveningStart || '無'}–${schedule.EveningEnd || '無'}），請於營業時間內下單`);
+      }
+
+      setupWebSocket();
+    };
   </script>
 </body>
 </html>
