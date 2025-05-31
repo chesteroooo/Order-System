@@ -540,14 +540,19 @@
       const eveningStart = schedule.EveningStart ? parseTimeToMinutes(schedule.EveningStart) : -1;
       const eveningEnd = schedule.EveningEnd ? parseTimeToMinutes(schedule.EveningEnd) : -1;
 
+      console.log('⏰ 判斷時間', {
+        now: timeInMinutes,
+        morning: [morningStart, morningEnd],
+        evening: [eveningStart, eveningEnd]
+      });
       return (morningStart !== -1 && morningEnd !== -1 && timeInMinutes >= morningStart && timeInMinutes <= morningEnd) ||
              (eveningStart !== -1 && eveningEnd !== -1 && timeInMinutes >= eveningStart && timeInMinutes <= eveningEnd);
     }
 
     function parseTimeToMinutes(timeStr) {
-      if (!timeStr) return -1;
-      const [hours, minutes] = timeStr.split(':').map(Number);
-      return hours * 60 + minutes;
+      if (!timeStr || !/^\d{1,2}:\d{2}$/.test(timeStr)) return -1;
+      const [hour, minute] = timeStr.split(':').map(Number);
+      return hour * 60 + minute;
     }
 
     async function submitOrder() {
