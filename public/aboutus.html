@@ -412,6 +412,15 @@
     }
   });
 
+  document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const table = params.get('table');
+    if (table) {
+      const backLink = document.getElementById('backToMain');
+      backLink.href = `mainmenu.html?table=${encodeURIComponent(table)}`;
+    }
+  });
+
     function toggleMenu() {
       const menu = document.getElementById("menuDropdown");
       menu.style.display = (menu.style.display === "block") ? "none" : "block";
