@@ -376,7 +376,13 @@ const qs = window.location.search;
     localStorage.removeItem('orderId');
     console.log('訂單資料已重置，準備開始新訂單');
     // 跳轉到主選單
-    location.href = 'mainmenu.html';
+    if (tableNumber) {
+        location.href = `mainmenu.html?table=${encodeURIComponent(tableNumber)}`;
+      } else {
+        // 如果 tableNumber 不存在，就直接去掃碼頁或顯示錯誤
+        alert('找不到桌號，請重新掃描QRCode進入。');
+        // location.href = 'qr-scan.html'; // 可改成你的掃碼頁
+    }
   }
 
   function renderCart() {
