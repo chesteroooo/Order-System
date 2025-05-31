@@ -390,7 +390,15 @@
       localStorage.removeItem('orderId');
       if (pollingInterval) clearInterval(pollingInterval);
       if (ws) ws.close();
-      location.href = 'mainmenu.html';
+      const params = new URLSearchParams(window.location.search);
+      const table = params.get('table');
+      const mode = params.get('mode'); // 如果你也有外帶內用模式
+
+      let url = 'mainmenu.html';
+      if (table) url += `?table=${encodeURIComponent(table)}`;
+      if (mode) url += table ? `&mode=${encodeURIComponent(mode)}` : `?mode=${encodeURIComponent(mode)}`;
+
+  window.location.href = url;
     }
 
     function renderCart() {
@@ -627,37 +635,55 @@
     }
 
     function setupWebSocket() {
-      ws = new WebSocket('ws://localhost:5500');
-      ws.onopen = () => console.log('WebSocket 連線已建立');
-      ws.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        if (message.type === 'scheduleUpdate') {
-          console.log('營業時間已更新，重新獲取當日營業時間');
-          const now = new Date();
-            function getLocalDateString(date = new Date()) {
-          const year = date.getFullYear();
-          const month = String(date.getMonth() + 1).padStart(2, '0');
-          const day = String(date.getDate()).padStart(2, '0');
-          return `${year}-${month}-${day}`;
-      }
-    const dateStr = getLocalDateString(now);
-          fetchStoreSchedule(dateStr).then(schedule => {
-            if (!isWithinBusinessHours(schedule, now)) {
-              showStatusMessage(`目前非營業時間（${schedule.MorningStart || '無'}–${schedule.MorningEnd || '無'} 或 ${schedule.EveningStart || '無'}–${schedule.EveningEnd || '無'}），請於營業時間內下單`);
-            } else {
-              const statusMessage = document.getElementById('statusMessage');
-              statusMessage.classList.remove('show');
-              const submitButton = document.getElementById('submitButton');
-              submitButton.classList.remove('disabled');
-              submitButton.disabled = false;
-              submitButton.onclick = submitOrder;
-            }
-          });
-        }
+  const isLocalhost = location.hostname === 'localhost';
+  const wsUrl = isLocalhost
+    ? 'ws://localhost:5500'
+    : 'wss://zhixue-roast-pork-rice-ordering-system-production.up.railway.app/ws';
+
+  ws = new WebSocket(wsUrl);
+
+  ws.onopen = () => {
+    console.log('✅ WebSocket 連線已建立');
+  };
+
+  ws.onmessage = (event) => {
+    const message = JSON.parse(event.data);
+    if (message.type === 'scheduleUpdate') {
+      console.log('📢 營業時間已更新，重新獲取當日營業時間');
+
+      const now = new Date();
+      const getLocalDateString = (date = new Date()) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
       };
-      ws.onclose = () => console.log('WebSocket 連線已關閉');
-      ws.onerror = (error) => console.error('WebSocket 錯誤:', error);
+      const dateStr = getLocalDateString(now);
+
+      fetchStoreSchedule(dateStr).then(schedule => {
+        if (!isWithinBusinessHours(schedule, now)) {
+          showStatusMessage(`目前非營業時間（${schedule.MorningStart || '無'}–${schedule.MorningEnd || '無'} 或 ${schedule.EveningStart || '無'}–${schedule.EveningEnd || '無'}），請於營業時間內下單`);
+        } else {
+          const statusMessage = document.getElementById('statusMessage');
+          statusMessage.classList.remove('show');
+          const submitButton = document.getElementById('submitButton');
+          submitButton.classList.remove('disabled');
+          submitButton.disabled = false;
+          submitButton.onclick = submitOrder;
+        }
+      });
     }
+  };
+
+  ws.onclose = () => {
+    console.warn('🔌 WebSocket 連線已關閉');
+  };
+
+  ws.onerror = (error) => {
+    console.error('❌ WebSocket 錯誤:', error);
+  };
+}
+
 
     document.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
