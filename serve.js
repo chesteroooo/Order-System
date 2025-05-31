@@ -574,7 +574,18 @@ app.post('/store-info/batch-schedule', authenticate, (req, res) => {
     Promise.all(updates)
         .then(() => {
             cache.del('storeSchedule');
+            updatedDates.forEach(date => {
+                cache.del(`storeSchedule:${date}`); // 清除每個更新的日期緩存
+            });
             logger.info(`批量更新成功: ${DayOfWeek} in ${Month}，緩存已清除`);
+
+            // 發送 WebSocket 通知
+            wss.clients.forEach(client => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify({ type: 'scheduleUpdate', data: { Dates: updatedDates } }));
+                }
+            });
+
             res.json({ message: '批量更新成功' });
         })
         .catch(err => {
@@ -582,6 +593,7 @@ app.post('/store-info/batch-schedule', authenticate, (req, res) => {
             res.status(500).json({ error: err.message });
         });
 });
+
 
 // 獲取菜單 API（公開路由，給消費者使用）
 app.get('/api/menu', (req, res) => {
