@@ -323,7 +323,9 @@
   <div class="navbar">
     <button class="menu-toggle" onclick="toggleMenu()">☰</button>
     <h1>志學燒肉飯</h1>
-    <div class="table-number">桌號<br>1</div>
+    <div class="table-number">
+        桌號<span id="table-number-display"></span>
+      </div>
     <div class="dropdown" id="menuDropdown">
       <a href="aboutus.html">關於我們</a>
       <a href="introduce.html">餐點介紹</a>
@@ -349,6 +351,17 @@
   </div>
 
   <script>
+
+const qs = window.location.search;   
+  const params  = new URLSearchParams(window.location.search);
+  const table  = params.get('table');
+  document.getElementById('table-number-display').innerText = table;
+
+  function toggleMenu() {
+    const dropdown = document.getElementById('menuDropdown');
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+  }
+
   function toggleMenu() {
     const dropdown = document.getElementById('menuDropdown');
     dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';

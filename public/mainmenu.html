@@ -409,8 +409,8 @@ width: 80%;               /* 占视口宽度的 80% */
     <button class="menu-toggle" onclick="toggleMenu()">☰</button>
     <h1>志學燒肉飯</h1>
     <div class="table-number">
-      桌號<br>1
-    </div>
+        桌號<span id="table-number-display"></span>
+      </div>
     <div class="dropdown" id="menuDropdown">
       <a href="aboutus.html">關於我們</a>
       <a href="introduce.html">餐點介紹</a>
@@ -424,8 +424,19 @@ width: 80%;               /* 占视口宽度的 80% */
     <div class="tab" data-category="Steam_Dishes" onclick="filterMenu('Steam_Dishes')">蒸的比較慢</div>
   </div>
   <div class="menu"></div>
-  <div><a href="order.html" class="cart-button" onclick="return checkOrderSubmission()">查看訂單內容　$<span id="cart-total">0</span></a></div>
+  <a href="#" id="view-cart" class="cart-button">
+      查看訂單內容　$<span id="cart-total">0</span>
+  </a>
   <script>
+     const qs = window.location.search;     // 例如 "?table=B03"
+  const btn = document.getElementById('view-cart');
+  const params      = new URLSearchParams(window.location.search);
+  const table  = params.get('table');
+  document.getElementById('table-number-display').innerText = table;
+  // 动态把 href 设成 order.html?table=B03
+  btn.href = `order.html${qs}`;
+
+
   function toggleMenu() {
     const dropdown = document.getElementById('menuDropdown');
     dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
@@ -440,9 +451,9 @@ width: 80%;               /* 占视口宽度的 80% */
 
     // Business hours in minutes: 11:30 (690) - 13:30 (810), 16:30 (990) - 20:30 (1230)
     const isOpenTime =
-      (timeInMinutes >= 690 && timeInMinutes <= 810) || // 11:30-13:30
+      (timeInMinutes >= 690 && timeInMinutes <= 990) || // 11:30-13:30
       (timeInMinutes >= 990 && timeInMinutes <= 1230); // 16:30-20:30
-    const isNotSaturday = day !== 6;
+    const isNotSaturday = day !== 7;
 
     return isOpenTime && isNotSaturday;
   }
