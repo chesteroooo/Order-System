@@ -546,61 +546,42 @@
 
         // 設置 WebSocket 連線
         function setupWebSocket() {
-             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        // 2. 取出當前 host（包含 domain + 端口，如果有的話）
-        const host = window.location.host;
-        // 3. 拼出完整的 WebSocket URL
-        const wsUrl = `${protocol}//${host}`;
-            console.log('嘗試用 WebSocket 連到：', wsUrl);
-        ws = new WebSocket(wsUrl);
-            ws.onopen = () => {
-                console.log('WebSocket 連線已建立');
-            };
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.host; // 包含 domain + （如果有）port
+    const wsUrl = `${protocol}//${host}`;
+    console.log('嘗試用 WebSocket 連到：', wsUrl);
 
-            ws.onmessage = (event) => {
-                const message = JSON.parse(event.data);
-                if (message.type === 'newOrder') {
+    // 建立 WebSocket 連線
+    ws = new WebSocket(wsUrl);
 
-                    playNotificationSound();
-                    const newOrder = {
-                        ...message.data,
-                        Items: JSON.parse(message.data.Items),
-                        CreatedAt: new Date(message.data.CreatedAt).toLocaleString('zh-TW', {
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        })
-                    };
-                    ordersData.push(newOrder);
-                    updateStats();
-                    showTab(currentTab);
-                    const pendingOrders = ordersData.filter(order => order.Status === '已送單' || order.Status === '已接單');
-                    if (pendingOrders.length > previousOrderCount) {
-                        showNotification(`有 ${pendingOrders.length - previousOrderCount} 筆新訂單！`);
-                        document.getElementById('pendingTab').innerHTML = `未完成 <span class="new-order-indicator"></span>`;
-                    }
-                    previousOrderCount = pendingOrders.length;
-                } else if (message.type === 'orderUpdate') {
-                    // 當收到更新時，重新載入訂單數據
-                    loadOrders();
-                } else if (message.type === 'orderDelete') {
-                    // 當收到刪除時，重新載入訂單數據
-                    loadOrders();
-                }
-                
-            };
+    ws.onopen = () => {
+      console.log('WebSocket 連線已建立');
+    };
 
-            ws.onclose = () => {
-                console.log('WebSocket 連線已關閉，嘗試重連...');
-                setTimeout(setupWebSocket, 5000);
-            };
+    // ◀ 這裡加上 async，就能在裡面使用 await
+    ws.onmessage = async (event) => {
+      const message = JSON.parse(event.data);
 
-            ws.onerror = (error) => {
-                console.error('WebSocket 錯誤:', error);
-            };
-        }
+      if (message.type === 'newOrder') {
+        // 只在 newOrder 時播放提示音並重新載入訂單列表
+        playNotificationSound();
+        await loadOrders();
+      }
+      else if (message.type === 'orderUpdate' || message.type === 'orderDelete') {
+        // 訂單更新或刪除也重新載入列表，但不播放提示音
+        await loadOrders();
+      }
+    };
+
+    ws.onclose = () => {
+      console.log('WebSocket 連線已關閉，嘗試重連...');
+      setTimeout(setupWebSocket, 5000);
+    };
+
+    ws.onerror = (error) => {
+      console.error('WebSocket 錯誤:', error);
+    };
+  }
 
         // 登出處理
         async function handleLogout() {
