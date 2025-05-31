@@ -363,8 +363,9 @@
   <div class="tab-feedback">關於我們</div>
 
   <div style="text-align: center;">
-    <a href="mainmenu.html" class="back-button">← 回主選單</a>
-  </div>
+  <a id="backToMain" class="back-button" href="mainmenu.html">← 回主選單</a>
+</div>
+
 
   <div class="content">
     <div class="subtitle">洄瀾風味 × 校園記憶</div>
@@ -394,6 +395,18 @@
       const menu = document.getElementById("menuDropdown");
       menu.style.display = (menu.style.display === "block") ? "none" : "block";
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+    // 1. 取得 URL 上的 query string
+    const params = new URLSearchParams(window.location.search);
+    const table = params.get('table');
+    if (table) {
+      // 2. 找到回主選單的 <a>，並加上 ?table=xxx
+      const backLink = document.getElementById('backToMain');
+      backLink.href = `mainmenu.html?table=${encodeURIComponent(table)}`;
+    }
+  });
+
   </script>
 </body>
 </html>

@@ -342,8 +342,9 @@
   <hr class="divider" />
   <div class="tab-feedback">餐點介紹</div>
   <div class="back-button">
-    <button onclick="location.href='mainmenu.html'">← 回主選單</button>
+     <a id="backToMain" href="mainmenu.html">← 回主選單</a>
   </div>
+
 
   <div class="dish-card image-left" data-tilt data-tilt-max="5" data-tilt-speed="400" data-tilt-perspective="1000">
     <div class="image-placeholder"><img src="images/107.jpg" alt="志學燒肉飯"></div>
@@ -391,6 +392,15 @@
   </div>
 
   <script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const table = params.get('table');
+    if (table) {
+      const backLink = document.getElementById('backToMain');
+      backLink.href = `mainmenu.html?table=${encodeURIComponent(table)}`;
+    }
+  });
+
     function toggleMenu() {
       const menu = document.getElementById("menuDropdown");
       menu.style.display = menu.style.display === "block" ? "none" : "block";

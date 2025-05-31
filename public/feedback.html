@@ -264,8 +264,8 @@
   <div class="tab-feedback">意見回饋</div>
 
   <div style="text-align: center;">
-    <button class="back-button" onclick="location.href='mainmenu.html'">← 回主選單</button>
-  </div>
+    <a id="backToMain" href="mainmenu.html" class="back-button">← 回主選單</a>
+</div>
 
   <div class="feedback-container">
     <textarea class="feedback-box" placeholder="留下你的評論……"></textarea>
@@ -273,6 +273,15 @@
   </div>
 
   <script>
+     document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const table = params.get('table');
+    if (table) {
+      const backLink = document.getElementById('backToMain');
+      backLink.href = `mainmenu.html?table=${encodeURIComponent(table)}`;
+    }
+  });
+
     // 選單切換功能
     function toggleMenu() {
       const menu = document.getElementById("menuDropdown");
