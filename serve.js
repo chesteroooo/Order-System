@@ -533,7 +533,7 @@ app.post('/store-info/schedule', authenticate, (req, res) => {
                 res.status(500).json({ error: err.message });
                 return;
             }
-            cache.del('storeSchedule');
+             cache.del(`storeSchedule:${Date}`);
             logger.info(`營業時間已更新，影響 ${this.changes} 行，緩存已清除`);
             res.json({ message: '營業時間已更新', changes: this.changes });
         }
