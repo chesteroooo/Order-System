@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>志學燒肉飯</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: 'Noto Sans TC', sans-serif;
+    background: linear-gradient(135deg, #f5f0e6 0%, #e8e2d0 100%);
+    color: #4b4231;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  .navbar {
+    background-color: #f5f0e6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    border-bottom: 2px solid #b7ae99;
+    box-shadow: 0 2px 4px rgba(75, 66, 49, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .menu-toggle {
+    background: none;
+    border: none;
+    color: #4b4231;
+    font-size: 28px;
+    cursor: pointer;
+    transition: transform 0.3s ease, color 0.3s ease;
+  }
+  .menu-toggle:hover {
+    transform: scale(1.2);
+    color: #8b7b4c;
+  }
+  .menu-toggle:active {
+    animation: bounce 0.2s ease;
+  }
+  .dropdown {
+    display: none;
+    position: absolute;
+    background-color: #ddd8cc;
+    color: #4b4231;
+    top: 60px;
+    left: 20px;
+    border-radius: 8px;
+    z-index: 11;
+    box-shadow: 0 4px 12px rgba(75, 66, 49, 0.2);
+    animation: slideIn 0.3s ease forwards;
+    transform-origin: top;
+  }
+  .dropdown a {
+    display: block;
+    padding: 12px 20px;
+    color: #4b4231;
+    text-decoration: none;
+    font-size: 16px;
+    transition: background-color 0.3s ease, padding-left 0.3s ease;
+  }
+  .dropdown a:hover {
+    background-color: #cfc7b8;
+    padding-left: 25px;
+    border-radius: 8px;
+  }
+  .navbar h1 {
+    margin: 0;
+    font-size: 36px;
+    font-weight: 900;
+    color: #4b4231;
+    letter-spacing: 2px;
+    background: linear-gradient(45deg, #4b4231, #8b7b4c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 1px 1px 3px rgba(75, 66, 49, 0.2);
+    position: relative;
+    animation: titleFadeIn 1s ease forwards;
+  }
+  .navbar h1::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50%;
+    height: 3px;
+    background: linear-gradient(90deg, #b7ae99, #8b7b4c);
+    border-radius: 2px;
+    opacity: 0.7;
+  }
+  .navbar .table-number {
+    background-color: #e8e2d0;
+    border-radius: 50%;
+    padding: 8px;
+    font-size: 14px;
+    text-align: center;
+    color: #4b4231;
+    border: 2px solid #b7ae99;
+    min-width: 4rem;
+    min-height: 4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(75, 66, 49, 0.1);
+    transition: transform 0.3s ease;
+    line-height: 1.2;
+    overflow: hidden;
+  }
+  .navbar .table-number:hover {
+    transform: rotate(10deg);
+  }
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    background-color: #e8e2d0;
+    text-align: center;
+    border-top: 1px solid #b7ae99;
+    border-bottom: 1px solid #b7ae99;
+    padding: 10px 0;
+  }
+  .tab {
+    flex: 1 1 25%;
+    padding: 12px;
+    border-right: 1px solid #b7ae99;
+    cursor: pointer;
+    color: #4b4231;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s ease, font-weight 0.3s ease, transform 0.2s ease;
+  }
+  .tab:last-child {
+    border-right: none;
+  }
+  .tab:hover, .tab.active {
+    background-color: #cfc7b8;
+    font-weight: 700;
+    border-radius: 5px;
+    transform: scale(1.05);
+  }
+  .menu {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    max-width: calc(160px * 6 + 15px * 5 + 40px);
+    gap: 15px;
+    padding: 20px;
+    margin: 0 auto;
+  }
+  .item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 260px;
+    padding: 15px;
+    background: linear-gradient(145deg, #faf6ed 0%, #f0ece3 100%);
+    border-radius: 10px;
+    text-align: center;
+    overflow: hidden;
+    border: 1px solid #b7ae99;
+    position: relative;
+    color: #4b4231;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 8px rgba(75, 66, 49, 0.1);
+    animation: fadeIn 0.5s ease forwards;
+  }
+  .item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(75, 66, 49, 0.3);
+    border-color: #8b7b4c;
+  }
+  .item .img {
+    width: 100%;
+    max-width: 160px;
+    height: 110px;
+    aspect-ratio: 1 / 1;
+    background-color: #e8e2d0;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-left: auto;
+    margin-right: auto;
+    transition: transform 0.3s ease;
+  }
+  .item:hover .img {
+    transform: scale(1.05);
+  }
+  .item .img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 8px;
+  }
+  .item .name {
+    font-size: 14px;
+    font-weight: 500;
+    margin: 5px 0;
+    min-height: 44px;
+    max-height: 44px;
+    overflow: hidden;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    width: 100%;
+    padding: 0 5px;
+  }
+  .item .price {
+    font-size: 16px;
+    font-weight: 700;
+    color: #4b4231;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    position: static;
+    transform: none;
+  }
+  .counter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .counter button {
+    background-color: #ddd8cc;
+    color: #4b4231;
+    border: none;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  .counter button:hover:enabled {
+    background-color: #8b7b4c;
+    color: #fff;
+    transform: scale(1.1);
+  }
+  .counter button:active:enabled {
+    animation: bounce 0.2s ease;
+  }
+  .counter button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .status {
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+    text-align: center;
+  }
+  .status::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: currentColor;
+  }
+  .cart-button {
+position: fixed;            /* 新增：固定在視窗 */
+  bottom: 20px;               /* 離底部 20px */
+  left: 50%;                  /* 水平置中 */
+  transform: translateX(-50%);
+width: 80%;               /* 占视口宽度的 80% */
+  /* max-width: 300px; */   /* 注释掉或删掉 */
+  max-width: 600px;    
+  /* 下面都是你原本的樣式 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 20px;
+  background-color: #cfc7b8;
+  color: #4b4231;
+  font-weight: 700;
+  font-size: 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid #b7ae99;
+  text-decoration: none;
+  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  animation: pulse 2s infinite ease-in-out;
+
+  margin: 0;                  /* 取代原來的 margin:20px auto */
+  z-index: 1000;              /* 確保它浮在最上層 */
+  }
+  .cart-button:hover {
+    background-color: #8b7b4c;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(75, 66, 49, 0.3);
+    animation: none;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: scaleY(0.8); }
+    to { opacity: 1; transform: scaleY(1); }
+  }
+  @keyframes bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(0.9); }
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(139, 123, 76, 0.4); }
+    50% { box-shadow: 0 0 0 10px rgba(139, 123, 76, 0); }
+  }
+  @keyframes titleFadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .item-added {
+    animation: scaleUp 0.3s ease;
+  }
+  .item-removed {
+    animation: scaleDown 0.3s ease;
+  }
+  @keyframes scaleUp {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  @keyframes scaleDown {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+  }
+  @media (max-width: 600px) {
+    .navbar {
+      padding: 10px 15px;
+    }
+    .navbar h1 {
+      font-size: 28px;
+      letter-spacing: 1.5px;
+    }
+    .navbar .table-number {
+      min-width: 3.5rem;
+      min-height: 3.5rem;
+      font-size: 12px;
+      padding: 6px;
+    }
+    .tab {
+      flex: 1 1 50%;
+      font-size: 14px;
+      padding: 10px;
+    }
+    .menu {
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      max-width: 100%;
+      padding: 15px;
+    }
+    .item {
+      min-height: 240px;
+    }
+    .item .img {
+      max-width: 140px;
+      height: 100px;
+    }
+    .item .name {
+      font-size: 13px;
+      min-height: 40px;
+      max-height: 40px;
+    }
+    .item .price {
+      font-size: 15px;
+    }
+    .cart-button {
+      font-size: 16px;
+      padding: 10px 15px;
+    }
+  }
+  @media (max-width: 400px) {
+    .navbar h1 {
+      font-size: 24px;
+      letter-spacing: 1px;
+    }
+    .menu-toggle {
+      font-size: 24px;
+    }
+    .dropdown {
+      top: 50px;
+      left: 10px;
+    }
+    .navbar .table-number {
+      min-width: 3rem;
+      min-height: 3rem;
+      font-size: 11px;
+      padding: 5px;
+    }
+  }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+    <h1>志學燒肉飯</h1>
+    <div class="table-number">
+      桌號<br>1
+    </div>
+    <div class="dropdown" id="menuDropdown">
+      <a href="aboutus.html">關於我們</a>
+      <a href="introduce.html">餐點介紹</a>
+      <a href="feedback.html">意見回饋</a>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab" data-category="Bento" onclick="filterMenu('Bento')">主餐類</div>
+    <div class="tab" data-category="Noodles" onclick="filterMenu('Noodles')">炒麵類</div>
+    <div class="tab" data-category="Side_Dishes" onclick="filterMenu('Side_Dishes')">小菜類</div>
+    <div class="tab" data-category="Steam_Dishes" onclick="filterMenu('Steam_Dishes')">蒸的比較慢</div>
+  </div>
+  <div class="menu"></div>
+  <div><a href="order.html" class="cart-button" onclick="return checkOrderSubmission()">查看訂單內容　$<span id="cart-total">0</span></a></div>
+  <script>
+  function toggleMenu() {
+    const dropdown = document.getElementById('menuDropdown');
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+  }
+
+  function isBusinessHours() {
+    const now = new Date();
+    const day = now.getDay(); // 0 = Sunday, 6 = Saturday
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const timeInMinutes = hours * 60 + minutes;
+
+    // Business hours in minutes: 11:30 (690) - 13:30 (810), 16:30 (990) - 20:30 (1230)
+    const isOpenTime =
+      (timeInMinutes >= 690 && timeInMinutes <= 810) || // 11:30-13:30
+      (timeInMinutes >= 990 && timeInMinutes <= 1230); // 16:30-20:30
+    const isNotSaturday = day !== 6;
+
+    return isOpenTime && isNotSaturday;
+  }
+
+  function updateUIBasedOnBusinessHours() {
+    const isOpen = isBusinessHours();
+    const cartButton = document.querySelector('.cart-button');
+    const menuItems = document.querySelectorAll('.item');
+
+    if (!isOpen) {
+      cartButton.style.pointerEvents = 'none';
+      cartButton.style.opacity = '0.5';
+      cartButton.style.cursor = 'not-allowed';
+      menuItems.forEach(item => {
+        const buttons = item.querySelectorAll('.counter button');
+        buttons.forEach(button => {
+          button.disabled = true;
+          button.style.pointerEvents = 'none';
+        });
+      });
+    } else {
+      cartButton.style.pointerEvents = 'auto';
+      cartButton.style.opacity = '1';
+      cartButton.style.cursor = 'pointer';
+      menuItems.forEach(item => {
+        const buttons = item.querySelectorAll('.counter button');
+        buttons.forEach(button => {
+          button.disabled = item.querySelector('.status').textContent !== '供應中';
+          button.style.pointerEvents = button.disabled ? 'none' : 'auto';
+        });
+      });
+    }
+  }
+
+  function checkBusinessHoursPeriodically() {
+    updateUIBasedOnBusinessHours();
+    setInterval(updateUIBasedOnBusinessHours, 60000); // Check every minute
+  }
+
+  function checkOrderSubmission() {
+    if (!isBusinessHours()) {
+      alert('非營業時間，無法點餐');
+      return false; // Prevent navigation
+    }
+    return true; // Allow navigation
+  }
+
+  let currentCategory = 'Bento';
+  let totalPrice = 0;
+
+  function updateCartTotal() {
+    document.getElementById('cart-total').textContent = totalPrice;
+  }
+
+  function saveCartItem(name, price, quantity) {
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const index = cart.findIndex(item => item.name === name);
+    if (index >= 0) {
+      if (quantity === 0) {
+        cart.splice(index, 1);
+      } else {
+        cart[index].quantity = quantity;
+      }
+    } else {
+      if (quantity > 0) {
+        cart.push({name, price, quantity});
+      }
+    }
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }
+
+  async function loadMenu() {
+    try {
+      const response = await fetch('/api/menu');
+      if (!response.ok) throw new Error('網路錯誤，無法取得菜單');
+      const data = await response.json();
+
+      const menuContainer = document.querySelector('.menu');
+      menuContainer.innerHTML = '';
+
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+      totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+      data.forEach((item, index) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.classList.add('item');
+        itemDiv.setAttribute('data-type', item.Category);
+        itemDiv.style.animationDelay = `${index * 0.1}s`;
+
+        const imgDiv = document.createElement('div');
+        imgDiv.classList.add('img');
+        const img = new Image();
+        img.src = `images/${item.ItemID}.jpg`;
+        img.alt = item.Item_Name;
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'cover';
+
+        img.onload = () => {
+          imgDiv.innerHTML = '';
+          imgDiv.appendChild(img);
+        };
+
+        img.onerror = () => {
+          img.src = 'images/100.jpg';
+          imgDiv.innerHTML = '';
+          imgDiv.appendChild(img);
+        };
+
+        const nameDiv = document.createElement('div');
+        nameDiv.classList.add('name');
+        nameDiv.textContent = item.Item_Name;
+
+        const priceDiv = document.createElement('div');
+        priceDiv.classList.add('price');
+        priceDiv.textContent = `$${item.Price}`;
+
+        const counterDiv = document.createElement('div');
+        counterDiv.classList.add('counter');
+
+        const minusBtn = document.createElement('button');
+        minusBtn.textContent = '-';
+        minusBtn.disabled = item.Status !== '供應中';
+
+        const countSpan = document.createElement('span');
+        let cartItem = cart.find(c => c.name === item.Item_Name);
+        countSpan.textContent = cartItem ? cartItem.quantity : 0;
+
+        const plusBtn = document.createElement('button');
+        plusBtn.textContent = '+';
+        plusBtn.disabled = item.Status !== '供應中';
+
+        plusBtn.addEventListener('click', () => {
+          if (item.Status !== '供應中' || !isBusinessHours()) return;
+          let count = parseInt(countSpan.textContent);
+          count++;
+          countSpan.textContent = count;
+          itemDiv.classList.add('item-added');
+          setTimeout(() => itemDiv.classList.remove('item-added'), 300);
+
+          totalPrice += item.Price;
+          updateCartTotal();
+          saveCartItem(item.Item_Name, item.Price, count);
+        });
+
+        minusBtn.addEventListener('click', () => {
+          if (item.Status !== '供應中' || !isBusinessHours()) return;
+          let count = parseInt(countSpan.textContent);
+          if (count > 0) {
+            count--;
+            countSpan.textContent = count;
+            itemDiv.classList.add('item-removed');
+            setTimeout(() => itemDiv.classList.remove('item-removed'), 300);
+
+            totalPrice -= item.Price;
+            updateCartTotal();
+            saveCartItem(item.Item_Name, item.Price, count);
+          }
+        });
+
+        counterDiv.appendChild(minusBtn);
+        counterDiv.appendChild(countSpan);
+        counterDiv.appendChild(plusBtn);
+
+        const statusDiv = document.createElement('div');
+        statusDiv.classList.add('status');
+        statusDiv.textContent = item.Status === '供應中' ? '供應中' : '停售中';
+        statusDiv.style.color = item.Status === '供應中' ? 'darkgreen' : 'lightcoral';
+
+        itemDiv.appendChild(imgDiv);
+        itemDiv.appendChild(nameDiv);
+        itemDiv.appendChild(priceDiv);
+        itemDiv.appendChild(counterDiv);
+        itemDiv.appendChild(statusDiv);
+
+        menuContainer.appendChild(itemDiv);
+      });
+
+      filterMenu(currentCategory);
+      setActiveTab(currentCategory);
+      updateCartTotal();
+      updateUIBasedOnBusinessHours(); // Ensure UI reflects business hours after menu load
+    } catch (error) {
+      console.error('取得菜單時發生錯誤:', error);
+    }
+  }
+
+  function filterMenu(category) {
+    currentCategory = category;
+    const items = document.querySelectorAll('.item');
+    items.forEach((item, index) => {
+      item.style.display = item.getAttribute('data-type') === category ? 'block' : 'none';
+      if (item.style.display === 'block') {
+        item.style.animation = `fadeIn 0.5s ease ${index * 0.1}s forwards`;
+      }
+    });
+    setActiveTab(category);
+  }
+
+  function setActiveTab(category) {
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab => {
+      if (tab.getAttribute('data-category') === category) {
+        tab.classList.add('active');
+      } else {
+        tab.classList.remove('active');
+      }
+    });
+  }
+
+  window.onload = () => {
+    loadMenu();
+    checkBusinessHoursPeriodically();
+  };
+  </script>
+</body>
+</html>

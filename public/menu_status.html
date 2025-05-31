@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>菜單狀態 - 訂單管理系統</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: #F5F7FA;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 150px;
+            background-color: #FFFFFF;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar ul li a {
+            color: #555555;
+            text-decoration: none;
+            font-size: 16px;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar ul li a:hover,
+        .sidebar ul li a.active {
+            background-color: #4A90E2;
+            color: #FFFFFF;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .main-content h2 {
+            color: #333333;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .category-tabs button {
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #E5E7EB;
+            color: #333333;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .category-tabs button.active {
+            background-color: #4A90E2;
+            color: #FFFFFF;
+        }
+
+        .category-tabs button:hover {
+            background-color: #D1D5DB;
+            transform: translateY(-2px);
+        }
+
+        .category-tabs button.active:hover {
+            background-color: #357ABD;
+        }
+
+        .add-button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #4A90E2;
+            color: #FFFFFF;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+        .add-button:hover {
+            background-color: #357ABD;
+            transform: translateY(-2px);
+        }
+
+        .menu-section {
+            display: none;
+            margin-bottom: 30px;
+        }
+
+        .menu-section.active {
+            display: block;
+        }
+
+        .menu-section h3 {
+            color: #333333;
+            font-size: 20px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #4A90E2;
+            padding-bottom: 5px;
+            width: fit-content;
+        }
+
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #FFFFFF;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-item .item-details {
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-item .item-details span {
+            color: #333333;
+            font-size: 16px;
+        }
+
+        .menu-item .item-details .price {
+            color: #4A90E2;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+
+        .menu-item .item-details .item-image {
+            width: 40px;
+            height: 40px;
+            margin-left: 10px;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+
+        .menu-item .status-buttons button {
+            padding: 8px 12px;
+            margin-left: 5px;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+        .menu-item .status-buttons .available {
+            background-color: #4A90E2;
+            color: #FFFFFF;
+        }
+
+        .menu-item .status-buttons .sold-out {
+            background-color: #F4A261;
+            color: #FFFFFF;
+        }
+
+        .menu-item .status-buttons .discontinued {
+            background-color: #E76F51;
+            color: #FFFFFF;
+        }
+
+        .menu-item .status-buttons button:hover {
+            transform: translateY(-2px);
+        }
+
+        .menu-item .status-buttons .available:hover {
+            background-color: #357ABD;
+        }
+
+        .menu-item .status-buttons .sold-out:hover {
+            background-color: #E68F50;
+        }
+
+        .menu-item .status-buttons .discontinued:hover {
+            background-color: #D55F41;
+        }
+
+        .menu-item .status-buttons button.active {
+            filter: brightness(1.2);
+            transform: scale(1.05);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .menu-item .edit-button {
+            padding: 8px 12px;
+            margin-left: 5px;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #10B981;
+            color: #FFFFFF;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+        .menu-item .edit-button:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: #FFFFFF;
+            padding: 20px;
+            border-radius: 5px;
+            width: 400px;
+            max-width: 90%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-content h3 {
+            margin-bottom: 15px;
+            color: #333333;
+        }
+
+        .modal-content label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333333;
+            font-size: 14px;
+        }
+
+        .modal-content select,
+        .modal-content input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #D1D5DB;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .modal-content .button-group {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .modal-content button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal-content .save-button {
+            background-color: #4A90E2;
+            color: #FFFFFF;
+        }
+
+        .modal-content .save-button:hover {
+            background-color: #357ABD;
+        }
+
+        .modal-content .delete-button {
+            background-color: #E76F51;
+            color: #FFFFFF;
+        }
+
+        .modal-content .delete-button:hover {
+            background-color: #D55F41;
+        }
+
+        .modal-content .cancel-button {
+            background-color: #E5E7EB;
+            color: #333333;
+        }
+
+        .modal-content .cancel-button:hover {
+            background-color: #D1D5DB;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-around;
+                padding: 10px;
+            }
+
+            .sidebar ul {
+                display: flex;
+                gap: 10px;
+            }
+
+            .sidebar ul li {
+                margin-bottom: 0;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
+
+            .category-tabs {
+                flex-direction: column;
+            }
+
+            .category-tabs button {
+                min-width: 100%;
+            }
+
+            .menu-item {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .menu-item .item-details,
+            .menu-item .status-buttons {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .menu-item .status-buttons {
+                display: flex;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .menu-item .item-details {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .menu-item .item-details .item-image {
+                margin-top: 10px;
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content h2 {
+                font-size: 20px;
+            }
+
+            .add-button {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+
+            .menu-section h3 {
+                font-size: 18px;
+            }
+
+            .menu-item .item-details span {
+                font-size: 14px;
+            }
+
+            .menu-item .item-details .price {
+                margin-left: 5px;
+            }
+
+            .menu-item .item-details .item-image {
+                width: 30px;
+                height: 30px;
+            }
+
+            .menu-item .status-buttons button,
+            .menu-item .edit-button {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+
+            .modal-content {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <ul>
+            <li><a href="orders.html">訂單</a></li>
+            <li><a href="menu_status.html" class="active">菜單狀態</a></li>
+            <li><a href="store_info.html">店家資訊</a></li>
+        </ul>
+        <ul>
+            <li><a href="#" onclick="handleLogout()">登出</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div id="loadingMessage" style="display: none; color: #4A90E2; margin-bottom: 10px;">載入中...</div>
+        <h2>菜單狀態</h2>
+        <button class="add-button" onclick="openAddModal()">新增品項</button>
+        <div class="category-tabs">
+            <button class="active" onclick="showCategory('bento')">主餐</button>
+            <button onclick="showCategory('noodles')">炒麵</button>
+            <button onclick="showCategory('side-dishes')">小菜</button>
+            <button onclick="showCategory('steam-dishes')">蒸的比較慢</button>
+        </div>
+
+        <div class="menu-section active" id="bento-section">
+            <h3>主餐</h3>
+        </div>
+
+        <div class="menu-section" id="noodles-section">
+            <h3>炒麵</h3>
+        </div>
+
+        <div class="menu-section" id="side-dishes-section">
+            <h3>小菜</h3>
+        </div>
+
+        <div class="menu-section" id="steam-dishes-section">
+            <h3>蒸的比較慢</h3>
+        </div>
+    </div>
+
+    <!-- 模態框：新增/修改品項 -->
+    <div class="modal" id="itemModal">
+        <div class="modal-content">
+            <h3 id="modalTitle">新增品項</h3>
+            <form id="itemForm" enctype="multipart/form-data">
+                <label for="itemCategory">類別</label>
+                <select id="itemCategory" name="Category" required>
+                    <option value="Bento">主餐</option>
+                    <option value="Noodles">炒麵</option>
+                    <option value="Side_Dishes">小菜</option>
+                    <option value="Steam_Dishes">蒸的比較慢</option>
+                </select>
+                <label for="itemName">品項名稱</label>
+                <input type="text" id="itemName" name="Item_Name" required>
+                <label for="itemPrice">價格</label>
+                <input type="number" id="itemPrice" name="Price" min="0" required>
+                <label for="itemImage">圖片（選擇新圖片以更新，留空則不更改）</label>
+                <input type="file" id="itemImage" name="image" accept="image/*">
+                <input type="hidden" id="itemID" name="ItemID">
+                <div class="button-group">
+                    <button type="submit" class="save-button">儲存</button>
+                    <button type="button" class="delete-button" id="deleteButton" style="display: none;">刪除</button>
+                    <button type="button" class="cancel-button" onclick="closeModal()">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 檢查登入狀態
+        document.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+                alert('請先登入！');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const savedCategory = localStorage.getItem('currentCategory');
+            if (savedCategory) {
+                currentCategory = savedCategory;
+                showCategory(currentCategory);
+            } else {
+                showCategory(currentCategory);
+            }
+        });
+
+        // 定義全局變數
+        let menuData = [];
+        let currentCategory = 'bento';
+
+        // 登出處理
+        async function handleLogout() {
+            try {
+                const response = await fetch('/logout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    sessionStorage.removeItem('isLoggedIn');
+                    sessionStorage.removeItem('username');
+                    alert('登出成功！');
+                    window.location.href = 'login.html';
+                } else {
+                    throw new Error(result.error || '登出失敗');
+                }
+            } catch (error) {
+                console.error('登出失敗:', error);
+                alert('登出失敗，請稍後重試');
+            }
+        }
+
+        // 從後端獲取菜單數據（加入重試機制）
+        async function fetchMenuData() {
+            for (let i = 0; i < 3; i++) {
+                try {
+                    document.getElementById('loadingMessage').style.display = 'block';
+                    const response = await fetch('/menu', {
+                        headers: {
+                            'Authorization': `Bearer ${sessionStorage.getItem('isLoggedIn')}`
+                        }
+                    });
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            alert('未登入，請先登入！');
+                            window.location.href = 'login.html';
+                            return [];
+                        }
+                        throw new Error('無法獲取菜單數據');
+                    }
+                    const data = await response.json();
+                    return data;
+                } catch (error) {
+                    console.error(`嘗試 ${i + 1} 次獲取菜單數據失敗:`, error);
+                    if (i === 2) {
+                        alert('無法載入菜單，請確認後端服務是否運行');
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                } finally {
+                    document.getElementById('loadingMessage').style.display = 'none';
+                }
+            }
+            return [];
+        }
+
+        // 檢查圖片是否存在，若不存在則返回預設圖片
+        function getItemImage(itemId) {
+            const imgPath = `/images/${itemId}.jpg?t=${new Date().getTime()}`; // 絕對路徑
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(imgPath);
+                img.onerror = () => resolve('/images/100.jpg'); // 預設圖片也用絕對路徑
+                img.src = imgPath;
+            });
+        }
+
+        // 渲染菜單項目
+        async function renderMenuItems(category, sectionId, menuData) {
+            const section = document.getElementById(sectionId);
+            section.innerHTML = `<h3>${section.querySelector('h3').textContent}</h3>`;
+            const items = menuData.filter(item => item.Category === category);
+            for (const item of items) {
+                const imagePath = await getItemImage(item.ItemID);
+                const menuItem = document.createElement('div');
+                menuItem.className = 'menu-item';
+                const availableClass = item.Status === '供應中' ? 'available active' : 'available';
+                const soldOutClass = item.Status === '本日售完' ? 'sold-out active' : 'sold-out';
+                const discontinuedClass = item.Status === '停售' ? 'discontinued active' : 'discontinued';
+                menuItem.innerHTML = `
+                    <div class="item-details">
+                        <span>${item.Item_Name}</span>
+                        <span class="price">$${item.Price}</span>
+                    </div>
+                    <div class="status-buttons">
+                        <button class="${availableClass}" onclick="updateStatus(${item.ItemID}, '供應中')">供應中</button>
+                        <button class="${soldOutClass}" onclick="updateStatus(${item.ItemID}, '本日售完')">本日售完</button>
+                        <button class="${discontinuedClass}" onclick="updateStatus(${item.ItemID}, '停售')">停售</button>
+                        <button class="edit-button" onclick="openEditModal(${item.ItemID})">修改</button>
+                    </div>
+                `;
+                section.appendChild(menuItem);
+            }
+        }
+
+        // 更新品項狀態並發送到後端
+        async function updateStatus(itemId, status) {
+            try {
+                const response = await fetch('/menu/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionStorage.getItem('isLoggedIn')}`
+                    },
+                    body: JSON.stringify({ ItemID: itemId, Status: status })
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert(`品項 ID ${itemId} 狀態已更新為：${status}`);
+                    menuData = await fetchMenuData();
+                    showCategory(currentCategory);
+                } else {
+                    if (response.status === 401) {
+                        alert('未登入，請先登入！');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    throw new Error(result.error || '更新狀態失敗');
+                }
+            } catch (error) {
+                console.error('更新狀態失敗:', error);
+                alert('更新狀態失敗，請稍後重試');
+            }
+        }
+
+        // 顯示特定類別的菜單，並保存到 localStorage
+        function showCategory(category) {
+            currentCategory = category;
+            localStorage.setItem('currentCategory', category);
+            const sections = document.querySelectorAll('.menu-section');
+            const buttons = document.querySelectorAll('.category-tabs button');
+
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+
+            buttons.forEach(button => {
+                button.classList.remove('active');
+            });
+
+            document.getElementById(`${category}-section`).classList.add('active');
+            document.querySelector(`.category-tabs button[onclick="showCategory('${category}')"]`).classList.add('active');
+
+            if (category === 'bento') renderMenuItems('Bento', 'bento-section', menuData);
+            else if (category === 'noodles') renderMenuItems('Noodles', 'noodles-section', menuData);
+            else if (category === 'side-dishes') renderMenuItems('Side_Dishes', 'side-dishes-section', menuData);
+            else if (category === 'steam-dishes') renderMenuItems('Steam_Dishes', 'steam-dishes-section', menuData);
+        }
+
+        // 打開新增品項模態框
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = '新增品項';
+            document.getElementById('itemForm').reset();
+            document.getElementById('itemID').value = '';
+            document.getElementById('itemImage').value = '';
+            document.getElementById('deleteButton').style.display = 'none';
+            document.getElementById('itemModal').style.display = 'flex';
+        }
+
+        // 打開修改品項模態框
+        function openEditModal(itemId) {
+            const item = menuData.find(item => item.ItemID === itemId);
+            if (!item) {
+                alert('找不到品項');
+                return;
+            }
+            document.getElementById('modalTitle').textContent = '修改品項';
+            document.getElementById('itemCategory').value = item.Category;
+            document.getElementById('itemName').value = item.Item_Name;
+            document.getElementById('itemPrice').value = item.Price;
+            document.getElementById('itemID').value = item.ItemID;
+            document.getElementById('itemImage').value = '';
+            document.getElementById('deleteButton').style.display = 'inline-block';
+            document.getElementById('itemModal').style.display = 'flex';
+        }
+
+        // 關閉模態框
+        function closeModal() {
+            document.getElementById('itemModal').style.display = 'none';
+        }
+
+        // 處理表單提交（新增或修改）
+        document.getElementById('itemForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const itemID = document.getElementById('itemID').value;
+            const formData = new FormData();
+            formData.append('Category', document.getElementById('itemCategory').value);
+            formData.append('Item_Name', document.getElementById('itemName').value);
+            formData.append('Price', parseInt(document.getElementById('itemPrice').value));
+            if (itemID) {
+                formData.append('ItemID', itemID);
+            }
+            const imageInput = document.getElementById('itemImage');
+            if (imageInput.files[0]) {
+                formData.append('image', imageInput.files[0]);
+            }
+
+            try {
+                let response;
+                if (itemID) {
+                    response = await fetch('/menu/update-item', {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${sessionStorage.getItem('isLoggedIn')}`
+                        },
+                        body: formData
+                    });
+                } else {
+                    response = await fetch('/menu/add', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${sessionStorage.getItem('isLoggedIn')}`
+                        },
+                        body: formData
+                    });
+                }
+                const result = await response.json();
+                if (response.ok) {
+                    alert(itemID ? '品項已更新' : '品項已新增');
+                    menuData = await fetchMenuData();
+                    showCategory(currentCategory);
+                    closeModal();
+                } else {
+                    if (response.status === 401) {
+                        alert('未登入，請先登入！');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    throw new Error(result.error || '操作失敗');
+                }
+            } catch (error) {
+                console.error('操作失敗:', error);
+                alert('操作失敗，請稍後重試');
+            }
+        });
+
+        // 處理刪除品項
+        document.getElementById('deleteButton').addEventListener('click', async () => {
+            const itemID = document.getElementById('itemID').value;
+            if (!confirm('確定要刪除此品項？')) return;
+            try {
+                const response = await fetch(`/menu/delete/${itemID}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${sessionStorage.getItem('isLoggedIn')}`
+                    }
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert('品項已刪除');
+                    menuData = await fetchMenuData();
+                    showCategory(currentCategory);
+                    closeModal();
+                } else {
+                    if (response.status === 401) {
+                        alert('未登入，請先登入！');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    throw new Error(result.error || '刪除失敗');
+                }
+            } catch (error) {
+                console.error('刪除失敗:', error);
+                alert('刪除失敗，請稍後重試');
+            }
+        });
+
+        // 初始加載菜單
+        async function loadMenu() {
+            menuData = await fetchMenuData();
+            showCategory(currentCategory);
+        }
+        loadMenu();
+    </script>
+</body>
+</html>

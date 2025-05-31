@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>意見回饋</title>
+<style>
+  :root {
+    --bg-main: #f8f4e9;
+    --bg-secondary: #ede7d5;
+    --bg-hover: #d9d2b6;
+    --bg-gray: #e0d9c8;
+    --border-color: #c2b9a0;
+    --text-main: #3c3522;
+    --text-dark: #2a2618;
+    --status-text: #5e5636;
+    --highlight: #fefbf3;
+    --accent: #8b7e4f;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.6;
+  }
+
+  .navbar {
+    background-color: var(--bg-main);
+    display: flex;
+    align-items: center;
+    justify-content: center; /* 改為 center，讓標題置中 */
+    padding: 15px 20px;
+    border-bottom: 2px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    position: relative; /* 確保 menu-toggle 和 dropdown 相對定位 */
+  }
+
+  .menu-toggle {
+    background: none;
+    border: none;
+    color: var(--text-main);
+    font-size: 28px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    position: absolute; /* 絕對定位到左側 */
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .menu-toggle:hover {
+    color: var(--accent);
+  }
+
+  .dropdown {
+    display: none;
+    position: absolute;
+    background-color: var(--highlight);
+    top: 60px;
+    left: 20px;
+    border-radius: 8px;
+    z-index: 1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    animation: slideDown 0.3s ease;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .dropdown a {
+    display: block;
+    padding: 12px 20px;
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 16px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .dropdown a:hover {
+    background-color: var(--bg-hover);
+    color: var(--text-dark);
+  }
+
+  .navbar h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-dark);
+    letter-spacing: 1px;
+    margin: 0; /* 移除外邊距，確保置中 */
+    text-align: center; /* 確保文字水平居中 */
+  }
+
+  .tab-feedback {
+    background-color: var(--bg-secondary);
+    text-align: center;
+    padding: 15px;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-dark);
+    border-bottom: 2px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .feedback-container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: var(--highlight);
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .feedback-box {
+    width: 100%;
+    height: 200px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-size: 16px;
+    resize: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .feedback-box:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 8px rgba(139, 126, 79, 0.3);
+  }
+
+  .submit-button {
+    display: block;
+    width: 90%;
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 15px;
+    background: linear-gradient(to bottom, var(--accent), #7a6e45);
+    color: var(--highlight);
+    font-size: 16px;
+    font-weight: 700;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  }
+
+  .submit-button:hover {
+    background: linear-gradient(to bottom, #7a6e45, var(--accent));
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .submit-button:disabled {
+    background: var(--bg-gray);
+    color: var(--status-text);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .back-button {
+    display: block;
+    width: 90%;
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 12px;
+    font-size: 16px;
+    background-color: var(--bg-secondary);
+    color: var(--text-main);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  }
+
+  .back-button:hover {
+    background-color: var(--bg-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .divider {
+    border: none;
+    border-top: 2px solid var(--border-color);
+    margin: 15px auto;
+    width: 90%;
+    max-width: 600px;
+  }
+
+  @media (max-width: 600px) {
+    .navbar {
+      padding: 10px 15px;
+    }
+
+    .navbar h1 {
+      font-size: 20px;
+    }
+
+    .dropdown {
+      top: 50px;
+      left: 15px;
+    }
+
+    .dropdown a {
+      padding: 10px 15px;
+      font-size: 14px;
+    }
+
+    .tab-feedback {
+      font-size: 18px;
+      padding: 12px;
+    }
+
+    .feedback-container {
+      padding: 15px;
+    }
+
+    .feedback-box {
+      font-size: 14px;
+      padding: 10px;
+    }
+
+    .submit-button,
+    .back-button {
+      font-size: 14px;
+      padding: 12px;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="navbar">
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+    <h1>志學燒肉飯</h1>
+    <div class="dropdown" id="menuDropdown">
+      <a href="aboutus.html">關於我們</a>
+      <a href="introduce.html">餐點介紹</a>
+      <a href="news.html">最新消息</a>
+      <a href="feedback.html">意見回饋</a>
+    </div>
+  </div>
+  <hr class="divider">
+  <div class="tab-feedback">意見回饋</div>
+
+  <div style="text-align: center;">
+    <button class="back-button" onclick="location.href='mainmenu.html'">← 回主選單</button>
+  </div>
+
+  <div class="feedback-container">
+    <textarea class="feedback-box" placeholder="留下你的評論……"></textarea>
+    <button class="submit-button">確認送出</button>
+  </div>
+
+  <script>
+    // 選單切換功能
+    function toggleMenu() {
+      const menu = document.getElementById("menuDropdown");
+      menu.style.display = (menu.style.display === "block") ? "none" : "block";
+    }
+
+    // 傳送意見回饋功能
+    const submitBtn = document.querySelector('.submit-button');
+    const feedbackBox = document.querySelector('.feedback-box');
+
+    submitBtn.addEventListener('click', async () => {
+      const feedbackText = feedbackBox.value.trim();
+
+      if (!feedbackText) {
+        alert('請輸入您的意見回饋');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = '提交中...';
+
+      try {
+        const response = await fetch('/api/feedback2', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ FeedbackText: feedbackText })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `網路錯誤，狀態碼 ${response.status}`);
+        }
+
+        alert('感謝您的回饋！');
+        feedbackBox.value = ''; // 清空 textarea
+      } catch (error) {
+        console.error('❌ 發生錯誤:', error);
+        alert(`送出失敗：${error.message}`);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '確認送出';
+      }
+    });
+  </script>
+</body>
+</html>

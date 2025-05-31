@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>店家資訊 - 訂單管理系統</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css' rel='stylesheet' />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: #F5F7FA;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 150px;
+            background-color: #FFFFFF;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar ul li a {
+            color: #555555;
+            text-decoration: none;
+            font-size: 16px;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar ul li a:hover,
+        .sidebar ul li a.active {
+            background-color: #4A90E2;
+            color: #FFFFFF;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .store-info-section {
+            background-color: #FFFFFF;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #E5E7EB;
+        }
+
+        .store-info-section h2 {
+            color: #333333;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: left;
+            border-bottom: 2px solid #4A90E2;
+            padding-bottom: 10px;
+            width: fit-content;
+        }
+
+        .store-info-section .info-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .store-info-section .info-group div {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .store-info-section label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333333;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .store-info-section input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #D1D5DB;
+            border-radius: 5px;
+            font-size: 14px;
+            background-color: #F9FAFB;
+            transition: border-color 0.3s ease;
+        }
+
+        .store-info-section input:focus {
+            border-color: #4A90E2;
+            outline: none;
+        }
+
+        .store-info-section button {
+            width: 150px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #4A90E2;
+            color: #FFFFFF;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            text-align: center;
+        }
+
+        .store-info-section button:hover {
+            background-color: #357ABD;
+            transform: translateY(-2px);
+        }
+
+        .schedule-section {
+            background-color: #FFFFFF;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .calendar-container {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        #calendar {
+            margin-bottom: 10px;
+        }
+
+        .selected-date {
+            color: #333333;
+            font-size: 16px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .schedule-details {
+            flex: 1;
+            min-width: 300px;
+            background-color: #FAFAFA;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid #E5E7EB;
+        }
+
+        .schedule-details h3 {
+            color: #333333;
+            font-size: 20px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #4A90E2;
+            padding-bottom: 10px;
+            width: fit-content;
+        }
+
+        .schedule-details label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .schedule-details input {
+            width: 45%;
+            padding: 8px;
+            margin-right: 5%;
+            border: 1px solid #D1D5DB;
+            border-radius: 5px;
+            font-size: 14px;
+            background-color: #F9FAFB;
+            transition: border-color 0.3s ease;
+        }
+
+        .schedule-details input:focus {
+            border-color: #4A90E2;
+            outline: none;
+        }
+
+        .schedule-details .time-pair {
+            display: flex;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+
+        .schedule-details select {
+            width: 150px;
+            padding: 8px;
+            border: 1px solid #D1D5DB;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-right: 10px;
+            background-color: #F9FAFB;
+            transition: border-color 0.3s ease;
+        }
+
+        .schedule-details select:focus {
+            border-color: #4A90E2;
+            outline: none;
+        }
+
+        .schedule-details button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #4A90E2;
+            color: #FFFFFF;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+        .schedule-details button:hover {
+            background-color: #357ABD;
+            transform: translateY(-2px);
+        }
+
+        .schedule-details button:disabled {
+            background-color: #A0A0A0;
+            cursor: not-allowed;
+        }
+
+        .closed-message {
+            color: #E76F51;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .batch-controls {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #E5E7EB;
+        }
+
+        .batch-controls h4 {
+            color: #333333;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .batch-controls .day-selection {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .batch-controls .day-selection label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        .batch-controls .day-selection input[type="checkbox"] {
+            width: auto;
+            margin-right: 5px;
+        }
+
+        .batch-controls .month-selection {
+            margin-bottom: 15px;
+        }
+
+        .feedback-section {
+            background-color: #FFFFFF;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .feedback-section h2 {
+            color: #333333;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: left;
+            border-bottom: 2px solid #4A90E2;
+            padding-bottom: 10px;
+            width: fit-content;
+        }
+
+        .feedback-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .feedback-item {
+            background-color: #F9FAFB;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #4A90E2;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+        }
+
+        .feedback-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .feedback-item .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .feedback-item .feedback-id {
+            font-weight: 500;
+            color: #4A90E2;
+            font-size: 14px;
+        }
+
+        .feedback-item .delete-btn {
+            background-color: #E76F51;
+            color: #FFFFFF;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 12px;
+        }
+
+        .feedback-item .delete-btn:hover {
+            background-color: #D35400;
+        }
+
+        .feedback-item .feedback-time {
+            color: #666666;
+            font-size: 12px;
+        }
+
+        .feedback-item .feedback-text {
+            color: #333333;
+            font-size: 14px;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+
+        .no-feedback {
+            text-align: center;
+            color: #666666;
+            font-size: 16px;
+            padding: 20px 0;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #4A90E2;
+            color: #FFFFFF;
+            transition: background-color 0.3s ease;
+        }
+
+        .pagination button:disabled {
+            background-color: #A0A0A0;
+            cursor: not-allowed;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background-color: #357ABD;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-around;
+                padding: 10px;
+            }
+
+            .sidebar ul {
+                display: flex;
+                gap: 10px;
+            }
+
+            .sidebar ul li {
+                margin-bottom: 0;
+            }
+
+            .schedule-section {
+                flex-direction: column;
+            }
+
+            .calendar-container, .schedule-details {
+                min-width: 100%;
+            }
+
+            .store-info-section .info-group {
+                flex-direction: column;
+            }
+
+            .schedule-details input {
+                width: 48%;
+                margin-right: 4%;
+            }
+
+            .feedback-item .feedback-header {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .feedback-item .delete-btn {
+                width: 100%;
+                margin-top: 5px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .store-info-section h2, .schedule-details h3, .feedback-section h2 {
+                font-size: 18px;
+            }
+
+            .schedule-details input {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
+            .schedule-details select, .schedule-details button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .schedule-details .time-pair {
+                flex-direction: column;
+            }
+
+            .feedback-item {
+                padding: 10px;
+            }
+
+            .feedback-item .feedback-text {
+                font-size: 12px;
+            }
+
+            .feedback-item .feedback-header {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .feedback-item .delete-btn {
+                font-size: 10px;
+                padding: 4px 8px;
+            }
+
+            .pagination button {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <ul>
+            <li><a href="orders.html">訂單</a></li>
+            <li><a href="menu_status.html">菜單狀態</a></li>
+            <li><a href="store_info.html" class="active">店家資訊</a></li>
+        </ul>
+        <ul>
+            <li><a href="#" onclick="handleLogout()">登出</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div id="loadingMessage" style="display: none; color: #4A90E2; margin-bottom: 10px;">載入中...</div>
+        <div class="store-info-section">
+            <h2>店家資訊</h2>
+            <div class="info-group">
+                <div>
+                    <label for="storeName">店家名稱</label>
+                    <input type="text" id="storeName" placeholder="請輸入店家名稱">
+                </div>
+                <div>
+                    <label for="storeAddress">地址</label>
+                    <input type="text" id="storeAddress" placeholder="請輸入地址">
+                </div>
+            </div>
+            <button onclick="updateStoreInfo()">儲存</button>
+        </div>
+
+        <div class="schedule-section">
+            <div class="calendar-container">
+                <div id="calendar"></div>
+                <div class="selected-date" id="selectedDateDisplay">您選擇的日期：請選擇日期</div>
+            </div>
+            <div class="schedule-details">
+                <h3>營業時間</h3>
+                <input type="hidden" id="selectedDate">
+                <div class="time-pair">
+                    <label for="morningStart">中午營業時段</label>
+                    <input type="time" id="morningStart">
+                    <input type="time" id="morningEnd">
+                </div>
+                <div class="time-pair">
+                    <label for="eveningStart">晚上營業時段</label>
+                    <input type="time" id="eveningStart">
+                    <input type="time" id="eveningEnd">
+                </div>
+                <div>
+                    <label for="todayStatus">今日狀態</label>
+                    <select id="todayStatus" onchange="updateTodayStatus()">
+                        <option value="0">營業</option>
+                        <option value="1">休息</option>
+                    </select>
+                </div>
+                <button id="updateButton" onclick="updateSchedule()" disabled>更新</button>
+                <div id="closedMessage" class="closed-message" style="display: none;">今日休息</div>
+
+                <div class="batch-controls">
+                    <h4>批量修改營業時間</h4>
+                    <div class="month-selection">
+                        <label for="batchMonth">選擇月份：</label>
+                        <select id="batchMonth" onchange="changeMonth()">
+                            <option value="01">1月</option>
+                            <option value="02">2月</option>
+                            <option value="03">3月</option>
+                            <option value="04">4月</option>
+                            <option value="05" selected>5月</option>
+                            <option value="06">6月</option>
+                            <option value="07">7月</option>
+                            <option value="08">8月</option>
+                            <option value="09">9月</option>
+                            <option value="10">10月</option>
+                            <option value="11">11月</option>
+                            <option value="12">12月</option>
+                        </select>
+                    </div>
+                    <div class="day-selection">
+                        <label><input type="checkbox" value="星期日">週日</label>
+                        <label><input type="checkbox" value="星期一">週一</label>
+                        <label><input type="checkbox" value="星期二">週二</label>
+                        <label><input type="checkbox" value="星期三">週三</label>
+                        <label><input type="checkbox" value="星期四">週四</label>
+                        <label><input type="checkbox" value="星期五">週五</label>
+                        <label><input type="checkbox" value="星期六">週六</label>
+                    </div>
+                    <div>
+                        <select id="batchStatus">
+                            <option value="0">營業</option>
+                            <option value="1">休息</option>
+                        </select>
+                        <button onclick="batchUpdateSchedule()">批量更新</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="feedback-section">
+            <h2>顧客回饋</h2>
+            <div id="feedbackList" class="feedback-list"></div>
+            <div class="pagination" id="pagination">
+                <button id="prevPage" onclick="changePage(-1)">上一頁</button>
+                <button id="nextPage" onclick="changePage(1)">下一頁</button>
+            </div>
+        </div>
+    </div>
+
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js'></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+                alert('請先登入！');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            initializeCalendar();
+            fetchFeedback();
+        });
+
+        async function handleLogout() {
+            try {
+                const response = await fetch('/logout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    sessionStorage.removeItem('isLoggedIn');
+                    sessionStorage.removeItem('username');
+                    alert('登出成功！');
+                    window.location.href = 'login.html';
+                } else {
+                    throw new Error(result.error || '登出失敗');
+                }
+            } catch (error) {
+                console.error('登出失敗:', error);
+                alert('登出失敗，請稍後重試');
+            }
+        }
+
+        let storeSchedule = {};
+        let currentDate = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
+        let calendar;
+        let currentMonth = new Date().toISOString().slice(5, 7);
+
+        let feedbackData = [];
+        let currentPage = 1;
+        const itemsPerPage = 5;
+
+        async function initializeCalendar() {
+            const calendarEl = document.getElementById('calendar');
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'zh-tw',
+                initialDate: `2025-${currentMonth}-01`,
+                dateClick: function(info) {
+                    currentDate = info.dateStr;
+                    document.getElementById('selectedDate').value = currentDate;
+                    const formattedDate = new Date(currentDate).toLocaleDateString('zh-TW', {
+                        year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+                    });
+                    document.getElementById('selectedDateDisplay').textContent = `您選擇的日期：${formattedDate}`;
+                    loadSchedule(currentDate);
+                    updateCalendarEvents();
+                },
+                datesSet: function(info) {
+                    currentMonth = info.view.currentStart.toISOString().slice(5, 7);
+                },
+                events: []
+            });
+            await loadStoreSchedule();
+            calendar.render();
+            document.getElementById('updateButton').disabled = false;
+            const today = new Date();
+            currentDate = today.toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
+            currentMonth = today.toISOString().slice(5, 7);
+            const formattedDate = today.toLocaleDateString('zh-TW', {
+                year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+            });
+            document.getElementById('selectedDateDisplay').textContent = `您選擇的日期：${formattedDate}`;
+            document.getElementById('selectedDate').value = currentDate;
+            loadSchedule(currentDate);
+            updateCalendarEvents();
+        }
+
+        async function loadStoreSchedule() {
+            for (let i = 0; i < 3; i++) {
+                try {
+                    document.getElementById('loadingMessage').style.display = 'block';
+                    const response = await fetch('/store-info', {
+                        headers: {
+                            'Authorization': `Bearer ${sessionStorage.getItem('isLoggedIn')}`
+                        }
+                    });
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            alert('未登入，請先登入！');
+                            window.location.href = 'login.html';
+                            return;
+                        }
+                        throw new Error('無法獲取店家資訊');
+                    }
+                    const data = await response.json();
+                    storeSchedule = data.reduce((acc, row) => {
+                        acc[row.Date] = { ...row };
+                        return acc;
+                    }, {});
+                    document.getElementById('storeName').value = storeSchedule[currentDate]?.StoreName || '';
+                    document.getElementById('storeAddress').value = storeSchedule[currentDate]?.Address || '';
+                    updateCalendarEvents();
+                    return;
+                } catch (error) {
+                    console.error(`嘗試 ${i+1} 次載入店家資訊失敗:`, error);
+                    if (i === 2) {
+                        alert('載入店家資訊失敗，請確認後端服務');
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                } finally {
+                    document.getElementById('loadingMessage').style.display = 'none';
+                }
+            }
+        }
+
+        function updateCalendarEvents() {
+            calendar.removeAllEvents();
+            Object.keys(storeSchedule).forEach(date => {
+                if (storeSchedule[date].IsClosedToday) {
+                    calendar.addEvent({
+                        start: date,
+                        allDay: true,
+                        backgroundColor: '#E76F51',
+                        borderColor: '#E76F51',
+                        display: 'background'
+                    });
+                }
+            });
+            calendar.addEvent({
+                title: '已選擇',
+                start: currentDate,
+                allDay: true,
+                backgroundColor: 'rgba(74, 144, 226, 0.3)',
+                borderColor: '#4A90E2',
+                textColor: '#000000'
+            });
+        }
+
+        async function loadSchedule(date) {
+            const schedule = storeSchedule[date] || {};
+            document.getElementById('morningStart').value = schedule.MorningStart || '11:30';
+            document.getElementById('morningEnd').value = schedule.MorningEnd || '13:30';
+            document.getElementById('eveningStart').value = schedule.EveningStart || '16:30';
+            document.getElementById('eveningEnd').value = schedule.EveningEnd || '20:00';
+            document.getElementById('todayStatus').value = schedule.IsClosedToday ? '1' : '0';
+            document.getElementById('closedMessage').style.display = schedule.IsClosedToday ? 'block' : 'none';
+        }
+
+        async function updateStoreInfo() {
+            const data = {
+                StoreName: document.getElementById('storeName').value,
+                Address: document.getElementById('storeAddress').value
+            };
+            try {
+                const response = await fetch('/store-info/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionStorage.getItem('isLoggedIn')}`
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert('店家資訊已更新');
+                    await loadStoreSchedule();
+                } else {
+                    if (response.status === 401) {
+                        alert('未登入，請先登入！');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    throw new Error(result.error || '更新失敗');
+                }
+            } catch (error) {
+                console.error('更新店家資訊失敗:', error);
+                alert('更新失敗，請稍後重試');
+            }
+        }
+
+        async function updateSchedule() {
+            const data = {
+                Date: currentDate,
+                MorningStart: document.getElementById('morningStart').value,
+                MorningEnd: document.getElementById('morningEnd').value,
+                EveningStart: document.getElementById('eveningStart').value,
+                EveningEnd: document.getElementById('eveningEnd').value,
+                IsClosedToday: document.getElementById('todayStatus').value === '1' ? 1 : 0
+            };
+            try {
+                const response = await fetch('/store-info/schedule', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionStorage.getItem('isLoggedIn')}`
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert('營業時間已更新');
+                    storeSchedule[currentDate] = { ...storeSchedule[currentDate], ...data };
+                    await loadStoreSchedule();
+                    loadSchedule(currentDate);
+                } else {
+                    if (response.status === 401) {
+                        alert('未登入，請先登入！');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    throw new Error(result.error || '更新失敗');
+                }
+            } catch (error) {
+                console.error('更新營業時間失敗:', error);
+                alert('更新失敗，請稍後重試');
+            }
+        }
+
+        async function updateTodayStatus() {
+            const today = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
+            if (currentDate !== today) {
+                alert('今日狀態僅適用於當前日期');
+                return;
+            }
+            const isClosed = document.getElementById('todayStatus').value === '1';
+            const data = {
+                Date: currentDate,
+                MorningStart: document.getElementById('morningStart').value,
+                MorningEnd: document.getElementById('morningEnd').value,
+                EveningStart: document.getElementById('eveningStart').value,
+                EveningEnd: document.getElementById('eveningEnd').value,
+                IsClosedToday: isClosed ? 1 : 0
+            };
+            try {
+                const response = await fetch('/store-info/schedule', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionStorage.getItem('isLoggedIn')}`
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert(isClosed ? '今日休息已設置' : '今日營業已設置');
+                    document.getElementById('closedMessage').style.display = isClosed ? 'block' : 'none';
+                    storeSchedule[currentDate].IsClosedToday = isClosed ? 1 : 0;
+                    await loadStoreSchedule();
+                } else {
+                    if (response.status === 401) {
+                        alert('未登入，請先登入！');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    throw new Error(result.error || '設置失敗');
+                }
+            } catch (error) {
+                console.error('設置今日狀態失敗:', error);
+                alert('設置失敗，請稍後重試');
+            }
+        }
+
+        async function batchUpdateSchedule() {
+            const selectedDays = Array.from(document.querySelectorAll('.day-selection input[type="checkbox"]:checked')).map(checkbox => checkbox.value);
+            if (selectedDays.length === 0) {
+                alert('請至少選擇一個星期');
+                return;
+            }
+            const isClosed = document.getElementById('batchStatus').value === '1';
+            const month = document.getElementById('batchMonth').value;
+            const promises = selectedDays.map(day => {
+                return fetch('/store-info/batch-schedule', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionStorage.getItem('isLoggedIn')}`
+                    },
+                    body: JSON.stringify({ DayOfWeek: day, Month: month, IsClosedToday: isClosed ? 1 : 0 })
+                }).then(response => {
+                    if (response.status === 401) {
+                        alert('未登入，請先登入！');
+                        window.location.href = 'login.html';
+                        throw new Error('未登入');
+                    }
+                    return response.json();
+                });
+            });
+            try {
+                await Promise.all(promises);
+                alert('批量更新成功');
+                await loadStoreSchedule();
+                loadSchedule(currentDate);
+            } catch (error) {
+                if (error.message !== '未登入') {
+                    console.error('批量更新失敗:', error);
+                    alert('批量更新失敗，請稍後重試');
+                }
+            }
+        }
+
+        function changeMonth() {
+            const month = document.getElementById('batchMonth').value;
+            currentMonth = month;
+            calendar.gotoDate(`2025-${month}-01`);
+            updateCalendarEvents();
+        }
+
+        async function fetchFeedback() {
+            try {
+                document.getElementById('loadingMessage').style.display = 'block';
+                const response = await fetch('/api/feedback', {
+                    headers: {
+                        'Authorization': `Bearer ${sessionStorage.getItem('isLoggedIn')}`
+                    }
+                });
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        alert('未登入，請先登入！');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    throw new Error('無法獲取顧客回饋');
+                }
+                feedbackData = await response.json();
+                feedbackData.sort((a, b) => new Date(b.Time) - new Date(a.Time));
+                currentPage = 1;
+                renderFeedback();
+            } catch (error) {
+                console.error('載入顧客回饋失敗:', error);
+                document.getElementById('feedbackList').innerHTML = '<p class="no-feedback">載入回饋失敗，請稍後重試</p>';
+            } finally {
+                document.getElementById('loadingMessage').style.display = 'none';
+            }
+        }
+
+        function renderFeedback() {
+            const feedbackList = document.getElementById('feedbackList');
+            feedbackList.innerHTML = '';
+
+            if (feedbackData.length === 0) {
+                feedbackList.innerHTML = '<p class="no-feedback">暫無顧客回饋</p>';
+                document.getElementById('pagination').style.display = 'none';
+                return;
+            }
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedFeedback = feedbackData.slice(startIndex, endIndex);
+
+            paginatedFeedback.forEach(feedback => {
+                const item = document.createElement('div');
+                item.className = 'feedback-item';
+                const formattedTime = new Date(feedback.Time).toLocaleString('zh-TW', {
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit'
+                });
+                item.innerHTML = `
+                    <div class="feedback-header">
+                        <span class="feedback-id">回饋編號: ${feedback.ID}</span>
+                        <button class="delete-btn" onclick="deleteFeedback(${feedback.ID})">刪除</button>
+                        <span class="feedback-time">${formattedTime}</span>
+                    </div>
+                    <div class="feedback-text">${feedback.FeedbackText}</div>
+                `;
+                feedbackList.appendChild(item);
+            });
+
+            document.getElementById('pagination').style.display = 'flex';
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = endIndex >= feedbackData.length;
+        }
+
+        async function deleteFeedback(feedbackId) {
+            if (!confirm('確定要刪除此回饋？此操作無法撤銷！')) {
+                return;
+            }
+            try {
+                const response = await fetch(`/api/feedback/delete`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionStorage.getItem('isLoggedIn')}`
+                    },
+                    body: JSON.stringify({ ID: feedbackId })
+                });
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        alert('未登入，請先登入！');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    throw new Error('刪除回饋失敗');
+                }
+                feedbackData = feedbackData.filter(f => f.ID !== feedbackId);
+                renderFeedback();
+                alert('回饋已成功刪除');
+            } catch (error) {
+                console.error('刪除回饋失敗:', error);
+                alert('刪除失敗，請稍後重試');
+            }
+        }
+
+        function changePage(direction) {
+            currentPage += direction;
+            renderFeedback();
+        }
+    </script>
+</body>
+</html>

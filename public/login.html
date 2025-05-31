@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登入 - 訂單管理系統</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: #F5F7FA;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #FFFFFF;
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .container h2 {
+            color: #333333;
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+        }
+
+        .tab-buttons button {
+            padding: 12px;
+            font-size: 18px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #555555;
+            position: relative;
+            transition: border-bottom-color 0.3s ease;
+        }
+
+        .tab-buttons button.active {
+            color: #4A90E2;
+            border-bottom: 3px solid #4A90E2;
+        }
+
+        .tab-buttons button:hover {
+            border-bottom: 2px solid #4A90E2;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            color: #555555;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #D1D5DB;
+            border-radius: 8px;
+            outline: none;
+            background-color: #F9FAFB;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .input-group input:focus {
+            border-color: #4A90E2;
+            box-shadow: 0 0 8px rgba(74, 144, 226, 0.3);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #4A90E2;
+            color: #FFFFFF;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #357ABD;
+            transform: translateY(-3px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background-color: #A0A0A0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            color: #E76F51;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .success-message {
+            color: #2ECC71;
+            font-size: 14px;
+            margin-top: 10px;
+            word-wrap: break-word;
+        }
+
+        .forgot-password {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #4A90E2;
+            cursor: pointer;
+            text-decoration: underline;
+            display: none;
+        }
+
+        .forgot-password:hover {
+            color: #357ABD;
+        }
+
+        .register-link {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #555555;
+            display: none;
+        }
+
+        .register-link a {
+            color: #4A90E2;
+            text-decoration: none;
+        }
+
+        .register-link a:hover {
+            color: #357ABD;
+        }
+
+        #registerTabButton, #forgotTabButton, #resetTabButton {
+            display: none;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px;
+                max-width: 90%;
+            }
+
+            .container h2 {
+                font-size: 22px;
+                margin-bottom: 20px;
+            }
+
+            .tab-buttons button {
+                font-size: 16px;
+                padding: 10px;
+            }
+
+            .input-group input {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            button {
+                padding: 12px;
+                font-size: 16px;
+            }
+
+            .error-message, .success-message {
+                font-size: 12px;
+            }
+
+            .forgot-password, .register-link {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>訂單管理系統</h2>
+        <div class="tab-buttons">
+            <button class="active" onclick="showTab('login')">登入</button>
+            <button id="registerTabButton" onclick="showTab('register')">註冊</button>
+            <button id="forgotTabButton" onclick="showTab('forgot')">忘記密碼</button>
+            <button id="resetTabButton" onclick="showTab('reset')">重置密碼</button>
+        </div>
+
+        <!-- 登入表單 -->
+        <div id="login" class="tab-content" style="display: block;">
+            <form id="loginForm" onsubmit="return false;">
+                <div class="input-group">
+                    <label for="loginUsername">帳號</label>
+                    <input type="text" id="loginUsername" placeholder="請輸入帳號" required>
+                </div>
+                <div class="input-group">
+                    <label for="loginPassword">密碼</label>
+                    <input type="password" id="loginPassword" placeholder="請輸入密碼" required>
+                </div>
+                <button id="loginButton" onclick="handleLogin()">登入</button>
+                <div id="loginError" class="error-message"></div>
+                <div class="forgot-password" onclick="showTab('forgot')">忘記密碼？</div>
+            </form>
+            <div class="register-link">還沒帳號？<a href="#" onclick="showTab('register')">立即註冊</a></div>
+        </div>
+
+        <!-- 註冊表單 -->
+        <div id="register" class="tab-content" style="display: none;">
+            <form id="registerForm" onsubmit="return false;">
+                <div class="input-group">
+                    <label for="registerUsername">帳號</label>
+                    <input type="text" id="registerUsername" placeholder="請輸入帳號" required>
+                </div>
+                <div class="input-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" placeholder="請輸入 Email" required>
+                </div>
+                <div class="input-group">
+                    <label for="registerPhone">電話</label>
+                    <input type="tel" id="registerPhone" placeholder="請輸入電話號碼" required>
+                </div>
+                <div class="input-group">
+                    <label for="registerFullName">姓名</label>
+                    <input type="text" id="registerFullName" placeholder="請輸入姓名" required>
+                </div>
+                <div class="input-group">
+                    <label for="registerPassword">密碼</label>
+                    <input type="password" id="registerPassword" placeholder="請輸入密碼" required>
+                </div>
+                <div class="input-group">
+                    <label for="registerConfirmPassword">確認密碼</label>
+                    <input type="password" id="registerConfirmPassword" placeholder="請再次輸入密碼" required>
+                </div>
+                <button id="registerButton" onclick="handleRegister()">註冊</button>
+                <div id="registerError" class="error-message"></div>
+            </form>
+            <div class="register-link">已有帳號？<a href="#" onclick="showTab('login')">立即登入</a></div>
+        </div>
+
+        <!-- 忘記密碼表單 -->
+        <div id="forgot" class="tab-content" style="display: none;">
+            <form id="forgotForm" onsubmit="return false;">
+                <div class="input-group">
+                    <label for="forgotEmail">Email</label>
+                    <input type="email" id="forgotEmail" placeholder="請輸入註冊 Email" required>
+                </div>
+                <div class="input-group">
+                    <label for="forgotPhone">電話</label>
+                    <input type="tel" id="forgotPhone" placeholder="請輸入註冊電話號碼" required>
+                </div>
+                <button id="forgotButton" onclick="handleForgotPassword()">獲取重置 Token</button>
+                <div id="forgotError" class="error-message"></div>
+                <div id="tokenMessage" class="success-message"></div>
+            </form>
+            <div class="register-link"><a href="#" onclick="showTab('login')">返回登入</a></div>
+        </div>
+
+        <!-- 重置密碼表單 -->
+        <div id="reset" class="tab-content" style="display: none;">
+            <form id="resetForm" onsubmit="return false;">
+                <div class="input-group">
+                    <label for="resetToken">重置 Token</label>
+                    <input type="text" id="resetToken" placeholder="請輸入重置 Token" required>
+                </div>
+                <div class="input-group">
+                    <label for="resetPassword">新密碼</label>
+                    <input type="password" id="resetPassword" placeholder="請輸入新密碼" required>
+                </div>
+                <div class="input-group">
+                    <label for="resetConfirmPassword">確認新密碼</label>
+                    <input type="password" id="resetConfirmPassword" placeholder="請再次輸入新密碼" required>
+                </div>
+                <button id="resetButton" onclick="handleResetPassword()">重置密碼</button>
+                <div id="resetError" class="error-message"></div>
+            </form>
+            <div class="register-link"><a href="#" onclick="showTab('login')">返回登入</a></div>
+        </div>
+    </div>
+
+    <script>
+        // 切換標籤
+        function showTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+            document.querySelectorAll('.tab-buttons button').forEach(button => button.classList.remove('active'));
+            document.getElementById(tab).style.display = 'block';
+            document.querySelector(`.tab-buttons button[onclick="showTab('${tab}')"]`).classList.add('active');
+        }
+
+        // 動態顯示/隱藏註冊和忘記密碼功能
+        function toggleAdminFeatures(show) {
+            const registerTab = document.getElementById('registerTabButton');
+            const forgotTab = document.getElementById('forgotTabButton');
+            const resetTab = document.getElementById('resetTabButton');
+            const forgotLink = document.querySelector('.forgot-password');
+            const registerLink = document.querySelector('.register-link');
+
+            if (show) {
+                registerTab.style.display = 'block';
+                forgotTab.style.display = 'block';
+                resetTab.style.display = 'block';
+                forgotLink.style.display = 'block';
+                registerLink.style.display = 'block';
+            } else {
+                registerTab.style.display = 'none';
+                forgotTab.style.display = 'none';
+                resetTab.style.display = 'none';
+                forgotLink.style.display = 'none';
+                registerLink.style.display = 'none';
+                showTab('login'); // 確保切回登入標籤
+            }
+        }
+
+        // 登入處理
+        async function handleLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const loginButton = document.getElementById('loginButton');
+            const errorMessage = document.getElementById('loginError');
+
+            errorMessage.style.display = 'none';
+            errorMessage.textContent = '';
+
+            if (!username || !password) {
+                errorMessage.textContent = '請填寫帳號和密碼！';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            loginButton.disabled = true;
+            loginButton.textContent = '登入中...';
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('username', username);
+
+                    // 檢查是否為 admin 帳號
+                    if (username === 'administrator' && password === 'qwertyuiop[]asdfghjkl;') {
+                        toggleAdminFeatures(true); // 顯示註冊和忘記密碼功能
+                        alert('您已以管理員身份登入，可使用所有功能！');
+                    } else {
+                        alert('登入成功！即將進入店家資訊頁面...');
+                        window.location.href = 'store_info.html';
+                    }
+                } else {
+                    errorMessage.textContent = result.error || '登入失敗';
+                    errorMessage.style.display = 'block';
+                    toggleAdminFeatures(false);
+                }
+            } catch (error) {
+                console.error('登入請求失敗:', error);
+                errorMessage.textContent = '伺服器錯誤，請稍後重試';
+                errorMessage.style.display = 'block';
+                toggleAdminFeatures(false);
+            } finally {
+                loginButton.disabled = false;
+                loginButton.textContent = '登入';
+            }
+        }
+
+        // 註冊處理
+        async function handleRegister() {
+            const username = document.getElementById('registerUsername').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const phone = document.getElementById('registerPhone').value.trim();
+            const fullName = document.getElementById('registerFullName').value.trim();
+            const password = document.getElementById('registerPassword').value.trim();
+            const confirmPassword = document.getElementById('registerConfirmPassword').value.trim();
+            const registerButton = document.getElementById('registerButton');
+            const errorMessage = document.getElementById('registerError');
+
+            errorMessage.style.display = 'none';
+            errorMessage.textContent = '';
+
+            if (!username || !email || !phone || !fullName || !password || !confirmPassword) {
+                errorMessage.textContent = '所有欄位為必填！';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            if (password !== confirmPassword) {
+                errorMessage.textContent = '密碼與確認密碼不一致！';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            registerButton.disabled = true;
+            registerButton.textContent = '註冊中...';
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, confirmPassword, email, phone, fullName })
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('註冊成功！請登入。');
+                    showTab('login');
+                } else {
+                    errorMessage.textContent = result.error || '註冊失敗';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('註冊請求失敗:', error);
+                errorMessage.textContent = '伺服器錯誤，請稍後重試';
+                errorMessage.style.display = 'block';
+            } finally {
+                registerButton.disabled = false;
+                registerButton.textContent = '註冊';
+            }
+        }
+
+        // 忘記密碼處理
+        async function handleForgotPassword() {
+            const email = document.getElementById('forgotEmail').value.trim();
+            const phone = document.getElementById('forgotPhone').value.trim();
+            const forgotButton = document.getElementById('forgotButton');
+            const errorMessage = document.getElementById('forgotError');
+            const tokenMessage = document.getElementById('tokenMessage');
+
+            errorMessage.style.display = 'none';
+            errorMessage.textContent = '';
+            tokenMessage.style.display = 'none';
+            tokenMessage.textContent = '';
+
+            if (!email || !phone) {
+                errorMessage.textContent = '請填寫 Email 和電話號碼！';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            forgotButton.disabled = true;
+            forgotButton.textContent = '獲取中...';
+
+            try {
+                const response = await fetch('/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, phone })
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('resetTabButton').style.display = 'block';
+                    tokenMessage.textContent = `您的重置 Token 是：${result.token}（請妥善保存，1 小時內有效）。即將跳轉到重置密碼頁面...`;
+                    tokenMessage.style.display = 'block';
+                    setTimeout(() => {
+                        showTab('reset');
+                        document.getElementById('resetToken').value = result.token;
+                    }, 2000);
+                } else {
+                    errorMessage.textContent = result.error || '獲取 Token 失敗';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('忘記密碼請求失敗:', error);
+                errorMessage.textContent = '伺服器錯誤，請稍後重試';
+                errorMessage.style.display = 'block';
+            } finally {
+                forgotButton.disabled = false;
+                forgotButton.textContent = '獲取重置 Token';
+            }
+        }
+
+        // 重置密碼處理
+        async function handleResetPassword() {
+            const token = document.getElementById('resetToken').value.trim();
+            const newPassword = document.getElementById('resetPassword').value.trim();
+            const confirmPassword = document.getElementById('resetConfirmPassword').value.trim();
+            const resetButton = document.getElementById('resetButton');
+            const errorMessage = document.getElementById('resetError');
+
+            errorMessage.style.display = 'none';
+            errorMessage.textContent = '';
+
+            if (!token || !newPassword || !confirmPassword) {
+                errorMessage.textContent = '所有欄位為必填！';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                errorMessage.textContent = '新密碼與確認密碼不一致！';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            resetButton.disabled = true;
+            resetButton.textContent = '重置中...';
+
+            try {
+                const response = await fetch('/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, newPassword, confirmPassword })
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('密碼已重置成功！請使用新密碼登入。');
+                    document.getElementById('resetTabButton').style.display = 'none';
+                    showTab('login');
+                } else {
+                    errorMessage.textContent = result.error || '重置密碼失敗';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('重置密碼請求失敗:', error);
+                errorMessage.textContent = '伺服器錯誤，請稍後重試';
+                errorMessage.style.display = 'block';
+            } finally {
+                resetButton.disabled = false;
+                resetButton.textContent = '重置密碼';
+            }
+        }
+
+        // 按下 Enter 鍵觸發對應操作
+        document.getElementById('loginForm').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        });
+        document.getElementById('registerForm').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleRegister();
+        });
+        document.getElementById('forgotForm').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleForgotPassword();
+        });
+        document.getElementById('resetForm').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleResetPassword();
+        });
+
+        // 檢查是否已登入，若已登入則跳轉到 store_info.html
+        if (sessionStorage.getItem('isLoggedIn') === 'true') {
+            const username = sessionStorage.getItem('username');
+            if (username === 'administrator') {
+                toggleAdminFeatures(true); // 管理員保持當前頁面並顯示功能
+            } else {
+                window.location.href = 'store_info.html'; // 其他用戶跳轉
+            }
+        } else {
+            toggleAdminFeatures(false); // 未登入時隱藏功能
+        }
+    </script>
+</body>
+</html>

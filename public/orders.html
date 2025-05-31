@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>訂單管理 - 訂單管理系統</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: #F5F7FA;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 150px;
+            background-color: #FFFFFF;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar ul li a {
+            color: #555555;
+            text-decoration: none;
+            font-size: 16px;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar ul li a:hover,
+        .sidebar ul li a.active {
+            background-color: #4A90E2;
+            color: #FFFFFF;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .main-content h2 {
+            color: #333333;
+            font-size: 24px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .stats-bar {
+            background-color: #FFFFFF;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        .stats-bar p {
+            margin: 0;
+            color: #333333;
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .category-tabs button {
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #E5E7EB;
+            color: #333333;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            flex: 1;
+            min-width: 120px;
+            position: relative;
+        }
+
+        .category-tabs button.active {
+            background-color: #4A90E2;
+            color: #FFFFFF;
+        }
+
+        .category-tabs button:hover {
+            background-color: #D1D5DB;
+            transform: translateY(-2px);
+        }
+
+        .category-tabs button.active:hover {
+            background-color: #357ABD;
+        }
+
+        .category-tabs .new-order-indicator {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 16px;
+            height: 16px;
+            background-color: #E76F51;
+            border-radius: 50%;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .search-bar input {
+            padding: 8px;
+            border: 1px solid #E5E7EB;
+            border-radius: 5px;
+            font-size: 14px;
+            flex: 1;
+        }
+
+        .search-bar button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4A90E2;
+            color: #FFFFFF;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-bar button:hover {
+            background-color: #357ABD;
+        }
+
+        .order-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .order-list {
+            width: 40%;
+            background-color: #FFFFFF;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .order-list h3 {
+            color: #333333;
+            font-size: 20px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #4A90E2;
+            padding-bottom: 5px;
+            width: fit-content;
+        }
+
+        .order-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #F9FAFB;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .order-item:hover {
+            background-color: #E5E7EB;
+        }
+
+        .order-item.selected {
+            background-color: #4A90E2;
+            color: #FFFFFF;
+        }
+
+        .order-item input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        .order-item .status-tag {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #FFFFFF;
+        }
+
+        .order-item .status-tag.pending {
+            background-color: #F59E0B; /* 已接單：橙色 */
+        }
+
+        .order-item .status-tag.completed {
+            background-color: #10B981; /* 已送餐：綠色 */
+        }
+
+        .order-item .status-tag.new {
+            background-color: #E76F51; /* 已送單：紅色 */
+        }
+
+        .order-item .status-tag.canceled {
+            background-color: #666666; /* 訂單取消：灰色 */
+        }
+
+        .order-item p {
+            font-size: 14px;
+            margin: 3px 0;
+            flex: 1;
+        }
+
+        .order-details {
+            width: 60%;
+            background-color: #FFFFFF;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            max-height: 70vh;
+            overflow-y: auto;
+            display: none; /* 預設隱藏 */
+        }
+
+        .order-details h3 {
+            color: #333333;
+            font-size: 20px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #4A90E2;
+            padding-bottom: 5px;
+            width: fit-content;
+        }
+
+        .order-details .overview {
+            background-color: #F9FAFB;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .order-details .overview p {
+            font-size: 16px;
+            margin: 5px 0;
+            color: #333333;
+        }
+
+        .order-details .overview p strong {
+            color: #4A90E2;
+        }
+
+        .order-details .total-amount {
+            font-size: 18px;
+            font-weight: 600;
+            color: #E76F51;
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #FFF5F5;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .order-details .items-section {
+            margin-top: 15px;
+        }
+
+        .order-details .items-list {
+            margin: 10px 0;
+        }
+
+        .order-details .items-list h4 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #333333;
+        }
+
+        .order-details .item-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #E5E7EB;
+            font-size: 14px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .order-details .item-row.completed {
+            text-decoration: line-through;
+            color: #666666;
+        }
+
+        .order-details .category-section {
+            margin-top: 10px;
+        }
+
+        .order-details .category-section h5 {
+            font-size: 14px;
+            color: #4A90E2;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .order-details .action-buttons {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .order-details button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            font-size: 14px;
+        }
+
+        .order-details .accept-button {
+            background-color: #FFD700;
+            color: #FFFFFF;
+        }
+
+        .order-details .accept-button:hover {
+            background-color: #FFC107;
+            transform: translateY(-2px);
+        }
+
+        .order-details .complete-button {
+            background-color: #10B981;
+            color: #FFFFFF;
+        }
+
+        .order-details .complete-button:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+        }
+
+        .order-details .cancel-button {
+            background-color: #E76F51;
+            color: #FFFFFF;
+        }
+
+        .order-details .cancel-button:hover {
+            background-color: #D55F41;
+            transform: translateY(-2px);
+        }
+
+        .no-orders {
+            text-align: center;
+            color: #666666;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4A90E2;
+            color: #FFFFFF;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-around;
+                padding: 10px;
+            }
+
+            .sidebar ul {
+                display: flex;
+                gap: 10px;
+            }
+
+            .sidebar ul li {
+                margin-bottom: 0;
+            }
+
+            .order-container {
+                flex-direction: column;
+            }
+
+            .order-list, .order-details {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content h2 {
+                font-size: 20px;
+            }
+
+            .order-list h3, .order-details h3 {
+                font-size: 16px;
+            }
+
+            .order-item p {
+                font-size: 12px;
+            }
+
+            .order-details .overview p {
+                font-size: 14px;
+            }
+
+            .order-details .total-amount {
+                font-size: 16px;
+            }
+
+            .order-details .item-row {
+                font-size: 12px;
+            }
+
+            .order-details button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <ul>
+            <li><a href="orders.html" class="active">訂單</a></li>
+            <li><a href="menu_status.html">菜單狀態</a></li>
+            <li><a href="store_info.html">店家資訊</a></li>
+        </ul>
+        <ul>
+            <li><a href="#" onclick="handleLogout()">登出</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div id="notification" class="notification"></div>
+        <div id="loadingMessage" style="display: none; color: #4A90E2; margin-bottom: 10px;">載入中...</div>
+        <h2>訂單管理</h2>
+        <div class="stats-bar" id="statsBar">
+            <p>今日訂單總數: <span id="totalOrders">0</span></p>
+            <p>今日總金額: $<span id="totalAmount">0</span></p>
+        </div>
+        <div class="category-tabs">
+            <button class="active" onclick="showTab('pending')" id="pendingTab">未完成</button>
+            <button onclick="showTab('todayCompleted')">今日已完成</button>
+            <button onclick="showTab('history')">歷史訂單</button>
+        </div>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="輸入訂單編號、桌號/客戶姓名或日期 (YYYY-MM-DD)">
+            <button onclick="searchOrders()">搜索</button>
+        </div>
+
+        <div class="order-container">
+            <div class="order-list" id="orderList">
+                <h3>訂單列表</h3>
+            </div>
+            <div class="order-details" id="orderDetails">
+                <h3>訂單詳情</h3>
+                <p id="detailsMessage" class="no-orders">請選擇一個訂單以查看詳情</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ordersData = [];
+        let previousOrderCount = 0;
+        let selectedOrder = null;
+        let currentTab = 'pending';
+        let ws = null;
+
+        // 模擬 Menu_Items 數據 (假設從後端獲取)
+        const menuItems = {
+            'Bento': ['雙拼特餐A (本幫+燒肉)', '雙拼特餐B (里肌+燒肉)', '椒鹽雞腿飯 (帶骨)', '日式雞排飯 (帶骨)', '椒鹽香雞排飯 (帶骨)', '日式香雞排飯 (帶骨)', '志學燒肉飯', '洄瀾風味餐(鹹豬肉)', '日式豬排飯', '祕醬牛肉飯', '本幫紅燒肉飯 (滷)', '蜜汁雞腿排飯 (無骨)', '照燒醬雞排飯', '卡拉雞腿排飯 (辣)', '醬燒里肌飯', '起司雞排飯', '酥炸排骨飯', '多力魚排飯', '<輕食> 燒肉飯', '<輕食> 里肌飯', '<輕食> 配菜飯', '白飯(加購)'],
+            'Noodles': ['沙茶炒麵', '沙茶炒麵+祕醬牛肉', '椒麻拌麵', '椒麻拌麵+卡拉雞排'],
+            'Side_Dishes': ['椒鹽香雞排', '志學燒肉', '韓式炸雞', '一口香酥雞', '美味起司條', '酥炸杏鮑菇', '美式洋蔥圈', '起司麥克雞', '(加購)薯條', '(加購)甜不辣', '椒鹽香酥脆餅', '涼拌柴魚豆腐'],
+            'Steam_Dishes': ['鮮肉湯包 (7顆)', '鮮蝦河粉 (3條)', '蝦仁燒賣 (6顆)', '綜合燒賣 (6顆)']
+        };
+
+        // 儲存項目完成狀態的對象，使用 localStorage
+        const itemCompletionState = JSON.parse(localStorage.getItem('itemCompletionState') || '{}');
+
+        // 檢查登入狀態並恢復標籤
+        document.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+                alert('請先登入！');
+                window.location.href = 'login.html';
+                return;
+            }
+            // 恢復上次標籤
+            const lastTab = sessionStorage.getItem('lastTab') || 'pending';
+            currentTab = lastTab;
+            loadOrders();
+            setupWebSocket();
+            showTab(lastTab);
+        });
+
+        // 設置 WebSocket 連線
+        function setupWebSocket() {
+            ws = new WebSocket('ws://localhost:5500');
+
+            ws.onopen = () => {
+                console.log('WebSocket 連線已建立');
+            };
+
+            ws.onmessage = (event) => {
+                const message = JSON.parse(event.data);
+                if (message.type === 'newOrder') {
+                    const newOrder = {
+                        ...message.data,
+                        Items: JSON.parse(message.data.Items),
+                        CreatedAt: new Date(message.data.CreatedAt).toLocaleString('zh-TW', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })
+                    };
+                    ordersData.push(newOrder);
+                    updateStats();
+                    showTab(currentTab);
+                    const pendingOrders = ordersData.filter(order => order.Status === '已送單' || order.Status === '已接單');
+                    if (pendingOrders.length > previousOrderCount) {
+                        showNotification(`有 ${pendingOrders.length - previousOrderCount} 筆新訂單！`);
+                        document.getElementById('pendingTab').innerHTML = `未完成 <span class="new-order-indicator"></span>`;
+                    }
+                    previousOrderCount = pendingOrders.length;
+                } else if (message.type === 'orderUpdate') {
+                    // 當收到更新時，重新載入訂單數據
+                    loadOrders();
+                } else if (message.type === 'orderDelete') {
+                    // 當收到刪除時，重新載入訂單數據
+                    loadOrders();
+                }
+            };
+
+            ws.onclose = () => {
+                console.log('WebSocket 連線已關閉，嘗試重連...');
+                setTimeout(setupWebSocket, 5000);
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket 錯誤:', error);
+            };
+        }
+
+        // 登出處理
+        async function handleLogout() {
+            try {
+                const response = await fetch('/logout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    sessionStorage.removeItem('isLoggedIn');
+                    sessionStorage.removeItem('username');
+                    sessionStorage.removeItem('lastTab');
+                    alert('登出成功！');
+                    window.location.href = 'login.html';
+                } else {
+                    throw new Error(result.error || '登出失敗');
+                }
+            } catch (error) {
+                console.error('登出失敗:', error);
+                alert('登出失敗，請稍後重試');
+            }
+        }
+
+        // 從後端獲取訂單數據（內用 + 外帶）
+        async function fetchOrders() {
+            for (let i = 0; i < 3; i++) {
+                try {
+                    document.getElementById('loadingMessage').style.display = 'block';
+                    const [dineInResponse, takeawayResponse] = await Promise.all([
+                        fetch('/api/dinein-orders', {
+                            headers: { 'Authorization': `Bearer ${sessionStorage.getItem('isLoggedIn')}` }
+                        }),
+                        fetch('/api/takeaway-orders', {
+                            headers: { 'Authorization': `Bearer ${sessionStorage.getItem('isLoggedIn')}` }
+                        })
+                    ]);
+                    if (!dineInResponse.ok || !takeawayResponse.ok) {
+                        if (dineInResponse.status === 401 || takeawayResponse.status === 401) {
+                            alert('未登入，請先登入！');
+                            window.location.href = 'login.html';
+                            return [];
+                        }
+                        throw new Error('無法獲取訂單數據');
+                    }
+                    const [dineInData, takeawayData] = await Promise.all([
+                        dineInResponse.json(),
+                        takeawayResponse.json()
+                    ]);
+                    const allOrders = [
+                        ...dineInData.map(order => ({
+                            ...order,
+                            CreatedAt: (() => {
+                                const date = new Date(order.CreatedAt);
+                                const year = date.getUTCFullYear();
+                                const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+                                const day = String(date.getUTCDate()).padStart(2, '0');
+                                const hours = date.getUTCHours() + 8;
+                                const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+                                const period = hours >= 12 ? '下午' : '上午';
+                                const formattedHours = hours % 12 || 12;
+                                return `${year}/${month}/${day} ${period}${formattedHours}:${minutes}`;
+                            })(),
+                            type: 'dinein'
+                        })),
+                        ...takeawayData.map(order => ({
+                            ...order,
+                            CreatedAt: (() => {
+                                const date = new Date(order.CreatedAt);
+                                const year = date.getUTCFullYear();
+                                const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+                                const day = String(date.getUTCDate()).padStart(2, '0');
+                                const hours = date.getUTCHours() + 8;
+                                const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+                                const period = hours >= 12 ? '下午' : '上午';
+                                const formattedHours = hours % 12 || 12;
+                                return `${year}/${month}/${day} ${period}${formattedHours}:${minutes}`;
+                            })(),
+                            type: 'takeaway'
+                        }))
+                    ];
+                    return allOrders.map(order => {
+                        let parsedItems;
+                        try {
+                            parsedItems = JSON.parse(order.Items);
+                        } catch (e) {
+                            console.error(`解析訂單 ${order.OrderID}-${order.OrderSequence} 的 Items 失敗:`, e);
+                            parsedItems = [];
+                        }
+                        return { ...order, Items: parsedItems };
+                    });
+                } catch (error) {
+                    console.error(`嘗試 ${i + 1} 次獲取訂單數據失敗:`, error);
+                    if (i === 2) {
+                        alert('無法載入訂單，請確認後端服務是否運行');
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                } finally {
+                    document.getElementById('loadingMessage').style.display = 'none';
+                }
+            }
+            return [];
+        }
+
+        // 載入訂單並渲染
+        async function loadOrders() {
+            ordersData = await fetchOrders();
+            const pendingOrders = ordersData.filter(order => order.Status === '已送單' || order.Status === '已接單');
+            previousOrderCount = pendingOrders.length;
+            document.getElementById('pendingTab').innerHTML = '未完成';
+            updateStats();
+            showTab(currentTab);
+        }
+
+        // 顯示通知
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // 更新統計數據（包含內用 + 外帶）
+        function updateStats() {
+            const today = new Date().toLocaleDateString('zh-TW', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }).replace(/\//g, '-');
+            const todayOrders = ordersData.filter(order => {
+                const orderDate = order.CreatedAt.split(' ')[0].replace(/\//g, '-');
+                return orderDate === today && order.Status !== '訂單取消';
+            });
+            const totalOrders = todayOrders.length;
+            const totalAmount = todayOrders.reduce((sum, order) => sum + order.TotalAmount, 0);
+            document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('totalAmount').textContent = totalAmount;
+        }
+
+        // 搜索訂單
+        function searchOrders() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            let filteredOrders = [];
+            const today = new Date().toLocaleDateString('zh-TW', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }).replace(/\//g, '-');
+
+            if (currentTab === 'pending') {
+                filteredOrders = ordersData.filter(order => (order.Status === '已送單' || order.Status === '已接單') && order.Status !== '訂單取消');
+                // 按狀態排序：已送單 > 已接單，然後按時間從早到晚
+                filteredOrders.sort((a, b) => {
+                    const statusPriority = { '已送單': 1, '已接單': 2 };
+                    const priorityA = statusPriority[a.Status] || 3;
+                    const priorityB = statusPriority[b.Status] || 3;
+                    if (priorityA !== priorityB) {
+                        return priorityA - priorityB; // 已送單排在最上方
+                    }
+                    return new Date(a.CreatedAt) - new Date(b.CreatedAt); // 按時間從早到晚
+                });
+            } else if (currentTab === 'todayCompleted') {
+                filteredOrders = ordersData.filter(order => {
+                    const orderDate = order.CreatedAt.split(' ')[0].replace(/\//g, '-');
+                    return (order.Status === '已送餐' || order.Status === '已取餐') && orderDate === today;
+                });
+            } else if (currentTab === 'history') {
+                filteredOrders = ordersData.filter(order => (order.Status === '已送餐' || order.Status === '已取餐') && order.Status !== '訂單取消');
+            }
+
+            if (searchTerm) {
+                filteredOrders = filteredOrders.filter(order => {
+                    const orderId = `${order.OrderID}-${order.OrderSequence}`.toLowerCase();
+                    const identifier = order.type === 'dinein' ? order.TableNumber.toLowerCase() : (order.CustomerName + ' ' + order.PhoneNumber).toLowerCase();
+                    const date = order.CreatedAt.split(' ')[0].replace(/\//g, '-');
+                    return orderId.includes(searchTerm) || identifier.includes(searchTerm) || date.includes(searchTerm);
+                });
+            }
+
+            renderOrderList(filteredOrders);
+            if (!filteredOrders.some(order => order.OrderID === selectedOrder?.OrderID && order.OrderSequence === selectedOrder?.OrderSequence)) {
+                renderOrderDetails(null);
+            }
+        }
+
+        // 顯示特定標籤的訂單
+        function showTab(tab) {
+            currentTab = tab;
+            const buttons = document.querySelectorAll('.category-tabs button');
+            buttons.forEach(button => button.classList.remove('active'));
+            document.querySelector(`.category-tabs button[onclick="showTab('${tab}')"]`).classList.add('active');
+            document.getElementById('searchInput').value = '';
+            searchOrders();
+            sessionStorage.setItem('lastTab', tab);
+        }
+
+        // 渲染訂單列表
+        function renderOrderList(orders) {
+            const list = document.getElementById('orderList');
+            list.innerHTML = '<h3>訂單列表</h3>';
+
+            if (orders.length === 0) {
+                list.innerHTML += '<p class="no-orders">無相關訂單</p>';
+                return;
+            }
+
+            orders.forEach(order => {
+                const item = document.createElement('div');
+                item.className = 'order-item';
+                item.dataset.orderId = order.OrderID;
+                item.dataset.orderSequence = order.OrderSequence;
+                let statusClass = 'new';
+                if (order.Status === '已接單') statusClass = 'pending';
+                else if (order.Status === '已送餐' || order.Status === '已取餐') statusClass = 'completed';
+                else if (order.Status === '訂單取消') statusClass = 'canceled';
+                item.innerHTML = `
+                    <div style="flex: 1;">
+                        <p>日期時間: ${order.CreatedAt}</p>
+                        <p>${order.type === 'dinein' ? `內用 (桌號: ${order.TableNumber})` : `外帶 (客戶: ${order.CustomerName}, 電話: ${order.PhoneNumber})`}</p>
+                        <p>訂單編號: ${order.OrderID}-${order.OrderSequence}</p>
+                        <p>總金額: $${order.TotalAmount}</p>
+                        <span class="status-tag ${statusClass}">${order.Status}</span>
+                    </div>
+                `;
+                item.addEventListener('click', (e) => {
+                    document.querySelectorAll('.order-item').forEach(el => el.classList.remove('selected'));
+                    item.classList.add('selected');
+                    selectedOrder = orders.find(o => o.OrderID === order.OrderID && o.OrderSequence === order.OrderSequence);
+                    renderOrderDetails(selectedOrder);
+                });
+
+                list.appendChild(item);
+            });
+        }
+
+        // 渲染訂單詳情
+        function renderOrderDetails(order) {
+            const details = document.getElementById('orderDetails');
+            if (!order) {
+                details.style.display = 'none';
+                details.innerHTML = '<h3>訂單詳情</h3><p id="detailsMessage" class="no-orders">請選擇一個訂單以查看詳情</p>';
+                return;
+            }
+
+            details.style.display = 'block';
+            const showAcceptButton = order.Status === '已送單';
+            const showCompleteButton = order.Status === '已接單';
+            const showCancelButton = order.Status !== '訂單取消';
+            details.innerHTML = `
+                <h3>訂單詳情</h3>
+                <div class="overview">
+                    <p><strong>訂單編號:</strong> ${order.OrderID}-${order.OrderSequence}</p>
+                    ${order.type === 'dinein' ? `<p><strong>桌號:</strong> ${order.TableNumber}</p>` : `
+                        <p><strong>客戶姓名:</strong> ${order.CustomerName}</p>
+                        <p><strong>電話號碼:</strong> ${order.PhoneNumber}</p>
+                        <p><strong>取餐時間:</strong> ${new Date(order.PickupTime).toLocaleString('zh-TW', {
+                            year: 'numeric', month: '2-digit', day: '2-digit',
+                            hour: '2-digit', minute: '2-digit'
+                        })}</p>
+                    `}
+                    <p><strong>時間:</strong> ${order.CreatedAt}</p>
+                    <p><strong>備註:</strong> ${order.Notes || '無'}</p>
+                </div>
+                <div class="items-section">
+                    <div class="items-list">
+                        <h4>訂單項目</h4>
+                    </div>
+                </div>
+                <p class="total-amount">總計金額: $${order.TotalAmount}</p>
+                <div class="action-buttons">
+                    ${showAcceptButton ? `<button class="accept-button" onclick="acceptOrder('${order.OrderID}', ${order.OrderSequence}, '${order.type}')">接單</button>` : ''}
+                    ${showCompleteButton ? `<button class="complete-button" onclick="completeOrder('${order.OrderID}', ${order.OrderSequence}, '${order.type}')">訂單完成</button>` : ''}
+                    ${showCancelButton ? `<button class="cancel-button" onclick="cancelOrder('${order.OrderID}', ${order.OrderSequence}, '${order.type}')">取消訂單</button>` : ''}
+                </div>
+            `;
+
+            const itemsList = details.querySelector('.items-list');
+            const categoryOrder = ['Bento', 'Noodles', 'Side_Dishes', 'Steam_Dishes'];
+
+            const sortedItems = order.Items.sort((a, b) => {
+                const categoryA = Object.keys(menuItems).find(category => menuItems[category].includes(a.name)) || 'Unknown';
+                const categoryB = Object.keys(menuItems).find(category => menuItems[category].includes(b.name)) || 'Unknown';
+                const categoryIndexA = categoryOrder.indexOf(categoryA);
+                const categoryIndexB = categoryOrder.indexOf(categoryB);
+                if (categoryIndexA !== categoryIndexB) {
+                    return categoryIndexA - categoryIndexB;
+                }
+                return a.name.localeCompare(b.name);
+            });
+
+            let currentCategory = null;
+            const orderKey = `${order.OrderID}-${order.OrderSequence}`;
+            sortedItems.forEach(item => {
+                const category = Object.keys(menuItems).find(category => menuItems[category].includes(item.name)) || 'Unknown';
+                if (currentCategory !== category) {
+                    currentCategory = category;
+                    const section = document.createElement('div');
+                    section.className = 'category-section';
+                    section.innerHTML = `<h5>${currentCategory}</h5>`;
+                    itemsList.appendChild(section);
+                }
+                const itemKey = `${orderKey}-${item.name}`;
+                const isCompleted = itemCompletionState[itemKey] || order.Status === '已送餐' || order.Status === '已取餐';
+                const row = document.createElement('div');
+                row.className = `item-row ${isCompleted ? 'completed' : ''}`;
+                row.dataset.itemKey = itemKey;
+                row.innerHTML = `
+                    <span>${item.name} x${item.quantity}</span>
+                    <span>$${item.price * item.quantity}</span>
+                `;
+                row.addEventListener('click', () => {
+                    const newCompleted = !row.classList.contains('completed');
+                    row.classList.toggle('completed', newCompleted);
+                    itemCompletionState[itemKey] = newCompleted;
+                    localStorage.setItem('itemCompletionState', JSON.stringify(itemCompletionState));
+                });
+                itemsList.appendChild(row);
+            });
+        }
+
+        // 接單
+        async function acceptOrder(orderId, orderSequence, type) {
+            try {
+                const endpoint = `/api/${type}-orders/complete`;
+                const response = await fetch(`${endpoint}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionStorage.getItem('isLoggedIn')}`
+                    },
+                    body: JSON.stringify({ OrderID: orderId, OrderSequence: orderSequence, Status: '已接單' })
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert('訂單已接單');
+                    // 重新載入訂單數據
+                    await loadOrders();
+                } else {
+                    if (response.status === 401) {
+                        alert('未登入，請先登入！');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    throw new Error(result.error || '更新失敗');
+                }
+            } catch (error) {
+                console.error('接單失敗:', error);
+                alert('接單失敗，請稍後重試');
+            }
+        }
+
+        // 完成訂單
+        async function completeOrder(orderId, orderSequence, type) {
+            try {
+                const endpoint = `/api/${type}-orders/complete`;
+                const response = await fetch(`${endpoint}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionStorage.getItem('isLoggedIn')}`
+                    },
+                    body: JSON.stringify({ OrderID: orderId, OrderSequence: orderSequence, Status: type === 'dinein' ? '已送餐' : '已取餐' })
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert('訂單已完成');
+                    // 重新載入訂單數據
+                    await loadOrders();
+                } else {
+                    if (response.status === 401) {
+                        alert('未登入，請先登入！');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    throw new Error(result.error || '更新失敗');
+                }
+            } catch (error) {
+                console.error('完成訂單失敗:', error);
+                alert('完成訂單失敗，請稍後重試');
+            }
+        }
+
+        // 取消訂單
+        async function cancelOrder(orderId, orderSequence, type) {
+            if (!confirm('確定取消此訂單？')) return;
+            try {
+                const endpoint = `/api/${type}-orders/complete`;
+                const response = await fetch(`${endpoint}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionStorage.getItem('isLoggedIn')}`
+                    },
+                    body: JSON.stringify({ OrderID: orderId, OrderSequence: orderSequence, Status: '訂單取消' })
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert('訂單已取消');
+                    // 重新載入訂單數據
+                    await loadOrders();
+                } else {
+                    if (response.status === 401) {
+                        alert('未登入，請先登入！');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    throw new Error(result.error || '更新失敗');
+                }
+            } catch (error) {
+                console.error('取消訂單失敗:', error);
+                alert('取消訂單失敗，請稍後重試');
+            }
+        }
+    </script>
+</html>

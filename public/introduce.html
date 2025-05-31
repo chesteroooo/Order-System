@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>餐點介紹</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.2/vanilla-tilt.min.js"></script>
+  <style>
+    :root {
+      --bg-main: #f5f0e6; /* Original beige background */
+      --bg-secondary: #e8e2d0; /* Original secondary beige */
+      --bg-hover: #cfc7b8; /* Original hover beige */
+      --bg-gray: #ddd8cc; /* Original gray for placeholders */
+      --border-color: #b7ae99; /* Original border color */
+      --text-main: #4b4231; /* Original text color */
+      --text-dark: #3a3421; /* Original dark text */
+      --status-text: #6b633f; /* Original status text */
+      --highlight: #faf6ed; /* Original card highlight */
+      --shadow: rgba(0, 0, 0, 0.1); /* Subtle shadow */
+      --accent: #d4a017; /* Warm beige-friendly accent for vibrancy */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background: var(--bg-main) #d7ccc8; /* Changed black pattern to light brown */
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+
+    .navbar {
+      background: var(--bg-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 2px 6px var(--shadow);
+    }
+
+    .menu-toggle {
+      position: absolute;
+      left: 20px;
+      background: none;
+      border: none;
+      color: var(--text-dark);
+      font-size: 28px;
+      cursor: pointer;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+
+    .menu-toggle:hover {
+      transform: scale(1.2);
+      color: var(--accent);
+    }
+
+    .dropdown {
+      display: none;
+      position: absolute;
+      background: var(--bg-secondary);
+      top: 60px;
+      left: 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 12px var(--shadow);
+      z-index: 11;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .dropdown a {
+      display: block;
+      padding: 12px 20px;
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 16px;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .dropdown a:hover {
+      background: var(--bg-hover);
+      color: var(--text-dark);
+      border-radius: 5px;
+    }
+
+    .navbar h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-align: center;
+      letter-spacing: 2px;
+      text-shadow: 1px 1px 2px var(--shadow);
+    }
+
+    .tab-feedback {
+      background: var(--bg-main);
+      text-align: center;
+      padding: 15px;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--status-text);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .divider {
+      border: none;
+      border-top: 3px solid var(--border-color);
+      margin: 15px auto;
+      width: 90%;
+      max-width: 1200px;
+    }
+
+    .back-button {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .back-button button {
+      padding: 12px 30px;
+      font-size: 16px;
+      background: var(--bg-gray);
+      color: var(--text-dark);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    .back-button button:hover {
+      background: var(--accent);
+      color: #fff;
+      transform: translateY(-3px);
+      box-shadow: 0 4px 10px var(--shadow);
+    }
+
+    .dish-card {
+      width: 90%;
+      max-width: 1200px;
+      min-height: 250px;
+      background: var(--highlight);
+      border-radius: 15px;
+      margin: 30px auto;
+      display: flex;
+      align-items: center;
+      padding: 20px;
+      box-shadow: 0 4px 12px var(--shadow);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
+    .dish-card:nth-child(1) { animation-delay: 0.1s; }
+    .dish-card:nth-child(2) { animation-delay: 0.2s; }
+    .dish-card:nth-child(3) { animation-delay: 0.3s; }
+    .dish-card:nth-child(4) { animation-delay: 0.4s; }
+    .dish-card:nth-child(5) { animation-delay: 0.5s; }
+
+    @keyframes fadeInUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .dish-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 16px var(--shadow);
+    }
+
+    .image-placeholder {
+      width: 300px;
+      height: 200px;
+      background: var(--bg-gray);
+      border-radius: 15px;
+      margin: 0 25px;
+      flex-shrink: 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .image-placeholder img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 15px;
+      transition: transform 0.5s ease;
+    }
+
+    .image-placeholder::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(0,0,0,0.15));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .image-placeholder:hover::after {
+      opacity: 1;
+    }
+
+    .image-placeholder:hover img {
+      transform: scale(1.1);
+    }
+
+    .dish-text {
+      flex: 1;
+      font-size: 18px;
+      color: var(--text-dark);
+      padding: 10px;
+    }
+
+    .dish-text h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: var(--text-dark);
+      position: relative;
+    }
+
+    .dish-text h2::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 50px;
+      height: 3px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    .dish-text p {
+      margin: 8px 0;
+      font-size: 16px;
+      color: var(--text-main);
+    }
+
+    .dish-card.image-left {
+      flex-direction: row;
+    }
+
+    .dish-card.image-right {
+      flex-direction: row-reverse;
+    }
+
+    .dish-card.image-right .dish-text {
+      text-align: right;
+    }
+
+    .dish-card.image-right .dish-text h2::after {
+      left: auto;
+      right: 0;
+    }
+
+    @media (max-width: 1300px) {
+      .navbar h1 {
+        font-size: 24px;
+      }
+
+      .dish-card {
+        width: 95%;
+        min-height: auto;
+        flex-direction: column !important;
+        padding: 15px;
+      }
+
+      .dish-card.image-right {
+        flex-direction: column !important;
+      }
+
+      .image-placeholder {
+        width: 90%;
+        height: 200px;
+        margin: 0 auto 20px auto;
+      }
+
+      .dish-text {
+        text-align: center !important;
+      }
+
+      .dish-text h2::after {
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .dish-text h2 {
+        font-size: 22px;
+      }
+
+      .dish-text p {
+        font-size: 15px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .navbar {
+        padding: 10px 15px;
+      }
+
+      .menu-toggle {
+        font-size: 24px;
+      }
+
+      .dropdown {
+        top: 50px;
+        left: 10px;
+      }
+
+      .tab-feedback {
+        font-size: 24px;
+      }
+
+      .back-button button {
+        padding: 10px 20px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+    <h1>志學燒肉飯</h1>
+    <div class="dropdown" id="menuDropdown">
+      <a href="aboutus.html">關於我們</a>
+      <a href="introduce.html">餐點介紹</a>
+      <a href="feedback.html">意見回饋</a>
+    </div>
+  </div>
+  <hr class="divider" />
+  <div class="tab-feedback">餐點介紹</div>
+  <div class="back-button">
+    <button onclick="location.href='mainmenu.html'">← 回主選單</button>
+  </div>
+
+  <div class="dish-card image-left" data-tilt data-tilt-max="5" data-tilt-speed="400" data-tilt-perspective="1000">
+    <div class="image-placeholder"><img src="images/107.jpg" alt="志學燒肉飯"></div>
+    <div class="dish-text">
+      <h2>1. 志學燒肉飯</h2>
+      <p>嚴選台灣豬五花，先醃再炸，外皮酥脆、油香四溢</p>
+      <p>這碗飯，是學生最熟悉的日常，也是讓人一吃就想家的味道</p>
+    </div>
+  </div>
+
+  <div class="dish-card image-right" data-tilt data-tilt-max="5" data-tilt-speed="400" data-tilt-perspective="1000">
+    <div class="image-placeholder"><img src="images/100.jpg" alt="雙拼特餐"></div>
+    <div class="dish-text">
+      <h2>2. 雙拼特餐（本幫＋燒肉）</h2>
+      <p>主打主菜飽足組合，將經典燒肉與「本幫」招牌菜色搭配上桌</p>
+      <p>層次豐富、香氣交織，特別適合想要多點變化的大胃王</p>
+    </div>
+  </div>
+
+  <div class="dish-card image-left" data-tilt data-tilt-max="5" data-tilt-speed="400" data-tilt-perspective="1000">
+    <div class="image-placeholder"><img src="images/116.jpg" alt="起司雞排飯"></div>
+    <div class="dish-text">
+      <h2>3. 起司雞排飯</h2>
+      <p>金黃炸雞排外酥內嫩，澆上濃郁起司醬後香氣倍增</p>
+      <p>是喜歡濃厚風味與酥脆口感的客群首選</p>
+    </div>
+  </div>
+
+  <div class="dish-card image-right" data-tilt data-tilt-max="5" data-tilt-speed="400" data-tilt-perspective="1000">
+    <div class="image-placeholder"><img src="images/100.jpg" alt="秘醬牛肉飯"></div>
+    <div class="dish-text">
+      <h2>4. 秘醬牛肉飯</h2>
+      <p>牛肉薄片現煎搭配秘製醬汁快炒，鹹香四溢、下飯無比</p>
+      <p>搭配白飯與配菜，一餐滿足又不油膩</p>
+    </div>
+  </div>
+
+  <div class="dish-card image-left" data-tilt data-tilt-max="5" data-tilt-speed="400" data-tilt-perspective="1000">
+    <div class="image-placeholder"><img src="images/100.jpg" alt="沙茶炒麵＋秘醬牛肉"></div>
+    <div class="dish-text">
+      <h2>5. 沙茶炒麵＋秘醬牛肉</h2>
+      <p>沙茶拌炒的炒麵香氣濃郁，再加上秘醬牛肉組合升級</p>
+      <p>麵與肉都有誠意，是想換口味時的飽足選擇</p>
+    </div>
+  </div>
+
+  <script>
+    function toggleMenu() {
+      const menu = document.getElementById("menuDropdown");
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function(event) {
+      const dropdown = document.getElementById("menuDropdown");
+      const menuToggle = document.querySelector(".menu-toggle");
+      if (!dropdown.contains(event.target) && !menuToggle.contains(event.target)) {
+        dropdown.style.display = "none";
+      }
+    });
+
+    // Initialize Vanilla Tilt for dish cards
+    VanillaTilt.init(document.querySelectorAll(".dish-card"), {
+      max: 5,
+      speed: 400,
+      perspective: 1000,
+      scale: 1.02
+    });
+
+    // Trigger animations on scroll
+    window.addEventListener("scroll", () => {
+      document.querySelectorAll(".dish-card").forEach(card => {
+        const rect = card.getBoundingClientRect();
+        if (rect.top < window.innerHeight * 0.9) {
+          card.style.animationPlayState = "running";
+        }
+      });
+    });
+  </script>
+</body>
+</html>

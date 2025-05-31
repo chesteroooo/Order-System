@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>關於我們 - 志學燒肉飯</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #f5f0e6;
+      --bg-secondary: #e8e2d0;
+      --bg-hover: #cfc7b8;
+      --bg-gray: #ddd8cc;
+      --border-color: #b7ae99;
+      --text-main: #4b4231;
+      --text-dark: #3a3421;
+      --status-text: #6b633f;
+      --highlight: #faf6ed;
+      --accent: #8b7b4c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Noto Sans TC', sans-serif;
+      background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
+      color: var(--text-main);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .navbar {
+      background-color: var(--bg-main);
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      padding: 15px 20px;
+      border-bottom: 2px solid var(--border-color);
+      box-shadow: 0 2px 4px rgba(75, 66, 49, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .menu-toggle {
+      background: none;
+      border: none;
+      color: var(--text-main);
+      font-size: 28px;
+      cursor: pointer;
+      transition: transform 0.3s ease, color 0.3s ease;
+      justify-self: start;
+    }
+
+    .menu-toggle:hover {
+      transform: scale(1.2);
+      color: var(--accent);
+    }
+
+    .menu-toggle:active {
+      animation: bounce 0.2s ease;
+    }
+
+    .dropdown {
+      display: none;
+      position: absolute;
+      background-color: var(--bg-gray);
+      color: var(--text-main);
+      top: 60px;
+      left: 20px;
+      border-radius: 8px;
+      z-index: 11;
+      box-shadow: 0 4px 12px rgba(75, 66, 49, 0.2);
+      animation: slideIn 0.3s ease forwards;
+      transform-origin: top;
+    }
+
+    .dropdown a {
+      display: block;
+      padding: 12px 20px;
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 16px;
+      transition: background-color 0.3s ease, padding-left 0.3s ease;
+    }
+
+    .dropdown a:hover {
+      background-color: var(--bg-hover);
+      padding-left: 25px;
+      border-radius: 8px;
+    }
+
+    .navbar h1 {
+      margin: 0;
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      background: linear-gradient(45deg, var(--text-main), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 1px 1px 3px rgba(75, 66, 49, 0.2);
+      text-align: center;
+      grid-column: 2;
+      animation: titleFadeIn 1s ease forwards;
+    }
+
+    .navbar h1::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--border-color), var(--accent));
+      border-radius: 2px;
+      opacity: 0.7;
+    }
+
+    .navbar .empty {
+      width: 28px; /* Matches menu-toggle size to balance layout */
+      justify-self: end;
+    }
+
+    .divider {
+      border: none;
+      border-top: 2px solid var(--border-color);
+      margin: 20px auto;
+      width: 90%;
+      max-width: 1200px;
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    .tab-feedback {
+      background: linear-gradient(145deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
+      text-align: center;
+      padding: 20px;
+      font-size: 48px;
+      font-weight: 900;
+      color: var(--text-dark);
+      letter-spacing: 1px;
+      border-bottom: 3px solid var(--accent);
+      box-shadow: 0 4px 8px rgba(75, 66, 49, 0.1);
+      margin: 0 auto;
+      max-width: 1200px;
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    .back-button {
+      display: inline-block;
+      padding: 12px 20px;
+      font-size: 16px;
+      font-weight: 700;
+      background-color: var(--bg-gray);
+      color: var(--text-main);
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      margin: 20px auto;
+      transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    .back-button:hover {
+      background-color: var(--accent);
+      color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(75, 66, 49, 0.3);
+      animation: none;
+    }
+
+    .back-button:active {
+      animation: bounce 0.2s ease;
+    }
+
+    .content {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 30px;
+      background: linear-gradient(145deg, var(--highlight) 0%, var(--bg-main) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(75, 66, 49, 0.1);
+      color: var(--text-main);
+      line-height: 2;
+      font-size: 20px;
+      text-align: center;
+      animation: fadeIn 0.5s ease forwards;
+      animation-delay: 0.2s;
+    }
+
+    .content .subtitle {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--text-dark);
+      margin-bottom: 30px;
+      background: linear-gradient(45deg, var(--text-main), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      position: relative;
+    }
+
+    .content .subtitle::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30%;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 1px;
+    }
+
+    .content p {
+      margin: 15px 0;
+      font-size: 18px;
+      line-height: 1.8;
+    }
+
+    .content p strong {
+      color: var(--text-dark);
+      font-weight: 700;
+    }
+
+    .hotline {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+      background: linear-gradient(145deg, var(--bg-secondary) 0%, var(--bg-main) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(75, 66, 49, 0.1);
+      text-align: center;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-dark);
+      animation: fadeIn 0.5s ease forwards;
+      animation-delay: 0.4s;
+    }
+
+    .hotline a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .hotline a:hover {
+      color: var(--text-dark);
+      text-decoration: underline;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: scaleY(0.8); }
+      to { opacity: 1; transform: scaleY(1); }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(0.9); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(139, 123, 76, 0.4); }
+      50% { box-shadow: 0 0 0 10px rgba(139, 123, 76, 0); }
+    }
+
+    @keyframes titleFadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      .navbar {
+        padding: 10px 15px;
+      }
+      .navbar h1 {
+        font-size: 28px;
+        letter-spacing: 1.5px;
+      }
+      .menu-toggle {
+        font-size: 24px;
+      }
+      .dropdown {
+        top: 50px;
+        left: 10px;
+      }
+      .tab-feedback {
+        font-size: 36px;
+        padding: 15px;
+      }
+      .content {
+        margin: 15px;
+        padding: 20px;
+        font-size: 16px;
+      }
+      .content .subtitle {
+        font-size: 24px;
+        margin-bottom: 20px;
+      }
+      .content p {
+        font-size: 16px;
+      }
+      .back-button {
+        font-size: 14px;
+        padding: 10px 15px;
+      }
+      .hotline {
+        margin: 15px;
+        padding: 15px;
+        font-size: 20px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .navbar h1 {
+        font-size: 24px;
+        letter-spacing: 1px;
+      }
+      .tab-feedback {
+        font-size: 28px;
+        padding: 10px;
+      }
+      .content {
+        margin: 10px;
+        padding: 15px;
+      }
+      .content .subtitle {
+        font-size: 20px;
+      }
+      .content p {
+        font-size: 14px;
+      }
+      .hotline {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+    <h1>志學燒肉飯</h1>
+    <div class="empty"></div>
+    <div class="dropdown" id="menuDropdown">
+      <a href="aboutus.html">關於我們</a>
+      <a href="introduce.html">餐點介紹</a>
+      <a href="feedback.html">意見回饋</a>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="tab-feedback">關於我們</div>
+
+  <div style="text-align: center;">
+    <a href="mainmenu.html" class="back-button">← 回主選單</a>
+  </div>
+
+  <div class="content">
+    <div class="subtitle">洄瀾風味 × 校園記憶</div>
+    <p><strong>「志學燒肉飯」的誕生，來自一個簡單卻溫暖的願望：</strong><br>
+      做一碗陪學生讀書、陪遊子回家的飯。</p>
+    <p>我們坐落在東華大學後門旁的志學村。這裡是學子逐夢的起點，也是旅人與在地人交會的地點。</p>
+    <p>「志學燒肉飯」不只是為了填飽肚子，更是為了填滿一段青春回憶。</p>
+    <p>我們的名字來自這塊土地，這裡承載著無數學生追夢的腳步聲，也烙印著簡單卻溫暖的味道。</p>
+    <p><strong>我們堅持「熱飯、好肉、不囉嗦」，</strong>用最純粹的方式，做出一碗能陪你熬夜、討論報告、談戀愛、聊夢想的燒肉飯。</p>
+    <p>那熟悉的香氣，不只是家的味道，更是學生時代最難忘的陪伴。</p>
+    <p><strong>我們的紅茶不是泡的，是用煮的。</strong><br>
+      每日清晨現煮，火候與時間都經過細心掌握。<br>
+      無添加濃縮液、無香精、無速成，只為保留那天然的蜜香與淡淡的澀甜回韻。</p>
+    <p>冰飲清爽順口，與餐點完美搭配；<br>
+      一杯接著一杯，陪你度過溫暖的用餐時光。<br>
+      這杯紅茶，不是附餐，是我們的溫柔堅持。</p>
+    <p><strong>無論你是東華人、旅人，還是回來看看的人，</strong><br>
+      來這裡吃碗燒肉飯吧。</p>
+  </div>
+
+  <div class="hotline">
+    訂購專線 <a href="tel:0930696101">0930-696-101</a>
+  </div>
+
+  <script>
+    function toggleMenu() {
+      const menu = document.getElementById("menuDropdown");
+      menu.style.display = (menu.style.display === "block") ? "none" : "block";
+    }
+  </script>
+</body>
+</html>

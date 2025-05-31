@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>訂購人資訊</title>
+  <style>
+    :root {
+      --bg-main: #f8f4e9;
+      --bg-secondary: #ede7d5;
+      --bg-hover: #d9d2b6;
+      --bg-gray: #e0d9c8;
+      --border-color: #c2b9a0;
+      --text-main: #3c3522;
+      --text-dark: #2a2618;
+      --status-text: #5e5636;
+      --highlight: #fefbf3;
+      --accent: #8b7e4f;
+      --disabled-bg: #cccccc;
+      --disabled-text: #666666;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+
+    .navbar {
+      background-color: var(--bg-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 20px;
+      border-bottom: 2px solid var(--border-color);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .menu-toggle {
+      background: none;
+      border: none;
+      color: var(--text-main);
+      font-size: 28px;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .menu-toggle:hover {
+      color: var(--accent);
+    }
+
+    .dropdown {
+      display: none;
+      position: absolute;
+      background-color: var(--highlight);
+      color: var(--text-main);
+      top: 60px;
+      left: 20px;
+      border-radius: 8px;
+      z-index: 1;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .dropdown a {
+      display: block;
+      padding: 12px 20px;
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 16px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .dropdown a:hover {
+      background-color: var(--bg-hover);
+      color: var(--text-dark);
+    }
+
+    .navbar h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: 1px;
+    }
+
+    .table-number {
+      background-color: var(--bg-secondary);
+      border-radius: 50%;
+      padding: 12px;
+      font-size: 16px;
+      text-align: center;
+      color: var(--text-main);
+      border: 2px solid var(--border-color);
+      min-width: 50px;
+      font-weight: 600;
+      user-select: none;
+    }
+
+    .back-button-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .back-button {
+      display: block;
+      width: 90%;
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 12px;
+      font-size: 16px;
+      background-color: var(--bg-secondary);
+      color: var(--text-main);
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .back-button:hover {
+      background-color: var(--bg-hover);
+      transform: translateY(-2px);
+    }
+
+    .form-container {
+      max-width: 400px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      background-color: var(--bg-secondary);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    input[type="text"], input[type="tel"] {
+      width: 100%;
+      padding: 10px;
+      background-color: var(--highlight);
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      color: var(--text-dark);
+      font-size: 16px;
+      transition: border-color 0.3s ease;
+    }
+
+    input::placeholder {
+      color: var(--text-main);
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .next-button {
+      display: block;
+      margin: 20px auto 40px auto;
+      width: 90%;
+      max-width: 500px;
+      padding: 15px;
+      background-color: var(--accent);
+      color: var(--highlight);
+      font-size: 16px;
+      font-weight: 700;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+      text-align: center;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .next-button:hover:not(:disabled) {
+      background-color: var(--text-dark);
+      transform: translateY(-2px);
+    }
+
+    .next-button:disabled {
+      background-color: var(--disabled-bg);
+      color: var(--disabled-text);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .next-button.status-mode {
+      background-color: var(--bg-gray);
+      color: var(--status-text);
+      cursor: default;
+      transform: none;
+    }
+
+    .ordered-items {
+      max-width: 400px;
+      margin: 10px auto;
+      padding: 20px;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      background-color: var(--bg-secondary);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .ordered-items h2 {
+      font-size: 20px;
+      color: var(--text-dark);
+      margin-bottom: 15px;
+    }
+
+    .ordered-items .cart-item {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 15px;
+      margin: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      background-color: var(--bg-gray);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .ordered-items .cart-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .contact-info {
+      display: none;
+      max-width: 400px;
+      margin: 10px auto;
+      padding: 20px;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      background-color: var(--bg-secondary);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .contact-info.show {
+      display: block;
+    }
+
+    .contact-info h2 {
+      font-size: 20px;
+      color: var(--text-dark);
+      margin-bottom: 15px;
+    }
+
+    .contact-info p {
+      margin: 10px 0;
+      font-size: 16px;
+      color: var(--text-dark);
+    }
+
+    .contact-info .status {
+      color: var(--status-text);
+    }
+
+    @media (max-width: 480px) {
+      .navbar {
+        padding: 10px 15px;
+      }
+
+      .navbar h1 {
+        font-size: 20px;
+      }
+
+      .navbar .table-number {
+        font-size: 14px;
+        padding: 8px;
+        min-width: 40px;
+      }
+
+      .form-container, .ordered-items, .contact-info {
+        margin: 20px 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+    <h1>志學燒肉飯</h1>
+    <div class="table-number">外帶</div>
+    <div class="dropdown" id="menuDropdown">
+      <a href="#">關於我們</a>
+      <a href="#">餐點介紹</a>
+      <a href="#">最新消息</a>
+      <a href="#">意見回饋</a>
+    </div>
+  </div>
+
+  <div class="back-button-container">
+    <button class="back-button" onclick="goBack()">← 回到主選單</button>
+  </div>
+
+  <div class="form-container" id="formContainer">
+    <label for="name">訂購人姓名：</label>
+    <input type="text" id="name" name="name" placeholder="請輸入訂購人姓名" required />
+
+    <label for="phone">電話：</label>
+    <input type="tel" id="phone" name="phone" placeholder="請輸入電話" required />
+  </div>
+
+  <div class="ordered-items" id="orderedItems">
+    <h2>訂單內容</h2>
+    <!-- 餐點顯示 -->
+  </div>
+
+  <div class="contact-info" id="contactInfo">
+    <h2>訂單確認</h2>
+    <!-- 聯絡資訊與狀態顯示 -->
+  </div>
+
+  <button class="next-button" id="submitButton" onclick="submitTakeawayOrder()">確認送出訂單</button>
+
+  <script>
+    let pollingInterval;
+
+    function toggleMenu() {
+      const menu = document.getElementById("menuDropdown");
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    }
+
+    function goBack() {
+      sessionStorage.removeItem('takeawayOrder');
+      localStorage.removeItem('cart');
+      if (pollingInterval) clearInterval(pollingInterval);
+      window.location.href = "mainmenu_takeout.html";
+    }
+
+    function renderOrderedItems(items) {
+      const orderedItemsDiv = document.getElementById('orderedItems');
+      orderedItemsDiv.innerHTML = '<h2>訂單內容</h2>';
+      if (items && Array.isArray(items) && items.length > 0) {
+        items.forEach(item => {
+          const itemDiv = document.createElement('div');
+          itemDiv.className = 'cart-item';
+          itemDiv.innerHTML = `
+            <span>${item.name || '未知餐點'}</span>
+            <span>x${item.quantity || 1}</span>
+            <span>$${((item.price || 0) * (item.quantity || 1)).toFixed(2)}</span>
+          `;
+          orderedItemsDiv.appendChild(itemDiv);
+        });
+      } else {
+        orderedItemsDiv.innerHTML += '<p>無訂單內容</p>';
+      }
+    }
+
+    function renderContactInfo(name, phone, pickupTime, orderId) {
+      const contactInfoDiv = document.getElementById('contactInfo');
+      const formattedTime = pickupTime ? new Date(pickupTime).toLocaleString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).replace(/,/, '') : '未提供';
+      contactInfoDiv.innerHTML = `
+        <h2>訂單確認</h2>
+        <p><strong>訂單編號：</strong>${orderId || '未提供'}</p>
+        <p><strong>姓名：</strong>${name || '未提供'}</p>
+        <p><strong>電話：</strong>${phone || '未提供'}</p>
+        <p><strong>預計取餐時間：</strong>${formattedTime}</p>
+      `;
+      contactInfoDiv.classList.add('show');
+    }
+
+    function updateOrderStatus(status) {
+      console.log(`更新訂單狀態: ${status}, 時間: ${new Date().toLocaleString('zh-TW')}`);
+      const submitButton = document.getElementById('submitButton');
+      submitButton.textContent = `訂單狀態：${status}`;
+      submitButton.classList.add('status-mode');
+      submitButton.disabled = true;
+      submitButton.onclick = null;
+      if (status === '已完成') {
+        if (pollingInterval) clearInterval(pollingInterval);
+        console.log('訂單已完成，停止輪詢');
+      }
+    }
+
+    function removeContactInputs() {
+      const formContainer = document.getElementById('formContainer');
+      formContainer.style.display = 'none';
+    }
+
+    async function fetchOrderStatus() {
+      const orderData = sessionStorage.getItem('takeawayOrder');
+      console.log(`檢查 sessionStorage.takeawayOrder: ${orderData}`);
+      const orderId = orderData ? JSON.parse(orderData).OrderID : null;
+      if (!orderId) {
+        console.log('無訂單編號，跳過狀態查詢');
+        return;
+      }
+
+      console.log(`查詢訂單狀態，OrderID: ${orderId}, 時間: ${new Date().toLocaleString('zh-TW')}`);
+      try {
+        const response = await fetch(`/api/takeaway-orders/${orderId}`, {
+          method: 'GET'
+        });
+        console.log(`回應狀態: ${response.status}`);
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`伺服器回傳 ${response.status}: ${errorText}`);
+        }
+        const data = await response.json();
+        console.log(`回應資料: OrderID=${data.OrderID}, Status=${data.Status}`);
+        updateOrderStatus(data.Status || '未知');
+      } catch (err) {
+        console.error(`查詢訂單狀態失敗: ${err.message}`);
+        updateOrderStatus('無法獲取');
+      }
+    }
+
+    // 檢查是否為週六
+    function isSaturday(date) {
+      return date.getDay() === 6; // 0 = 週日, 1 = 週一, ..., 6 = 週六
+    }
+
+    // 檢查時間是否在營業時間內
+    function isWithinBusinessHours(date) {
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
+      const timeInMinutes = hours * 60 + minutes;
+      // 營業時間：11:30–13:30 (690–810 分鐘), 16:30–20:30 (990–1230 分鐘)
+      return (timeInMinutes >= 690 && timeInMinutes <= 810) || 
+             (timeInMinutes >= 990 && timeInMinutes <= 1230);
+    }
+
+    // 格式化日期時間為 datetime-local 格式
+    function formatDateTimeLocal(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    async function submitTakeawayOrder() {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      if (!cart.length) return alert('購物車為空');
+
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      if (!name || !phone) return alert('請填寫姓名和電話');
+
+      const phoneRegex = /^09\d{8}$/;
+      if (!phoneRegex.test(phone)) {
+        alert('請輸入有效的台灣手機號碼（09開頭，10位數字）');
+        return;
+      }
+
+      // 自動設定取餐時間為當前時間 + 15 分鐘
+      const now = new Date();
+      const pickupDate = new Date(now.getTime() + 15 * 60 * 1000); // 當前時間 + 15 分鐘
+      const pickup = formatDateTimeLocal(pickupDate);
+
+      // 驗證取餐時間
+      if (isSaturday(pickupDate)) {
+        alert('週六為公休日，請於營業日下單');
+        return;
+      }
+
+      if (!isWithinBusinessHours(pickupDate)) {
+        alert('目前非營業時間（11:30–13:30 或 16:30–20:30），請於營業時間內下單');
+        return;
+      }
+
+      const items = cart.map(i => ({ name: i.name, price: i.price, quantity: i.quantity }));
+      const total = items.reduce((s, i) => s + i.price * i.quantity, 0);
+
+      const nowForId = new Date();
+      const YYYY = nowForId.getFullYear();
+      const MM = String(nowForId.getMonth() + 1).padStart(2, '0');
+      const DD = String(nowForId.getDate()).padStart(2, '0');
+      try {
+        const maxSeqRes = await fetch('/api/takeaway-orders/max-sequence');
+        if (!maxSeqRes.ok) throw new Error(`獲取序號失敗: ${maxSeqRes.status}`);
+        const { maxSequence } = await maxSeqRes.json();
+        const next = String((maxSequence || 0) + 1).padStart(3, '0');
+        const orderId = `20${YYYY}${MM}${DD}${next}`;
+
+        const payload = {
+          OrderID: orderId,
+          OrderSequence: parseInt(next),
+          CustomerName: name,
+          PhoneNumber: phone,
+          Items: items,
+          Notes: '',
+          TotalAmount: total,
+          CreatedAt: nowForId.toISOString(),
+          Status: '已送單',
+          PickupTime: pickupDate.toISOString()
+        };
+
+        console.log('提交訂單 payload:', JSON.stringify(payload));
+        const res = await fetch('/api/takeaway-orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || `HTTP error: ${res.status}`);
+        }
+        const result = await res.json();
+        console.log('提交結果:', result);
+
+        sessionStorage.setItem('takeawayOrder', JSON.stringify({
+          OrderID: orderId,
+          CustomerName: name,
+          PhoneNumber: phone,
+          PickupTime: pickup,
+          Items: items
+        }));
+        console.log('儲存 sessionStorage.takeawayOrder:', sessionStorage.getItem('takeawayOrder'));
+
+        renderContactInfo(name, phone, pickup, orderId);
+        renderOrderedItems(items);
+        removeContactInputs();
+        updateOrderStatus(result.status || '已送單');
+        alert('✅ 外帶訂單送出成功');
+        localStorage.removeItem('cart');
+        fetchOrderStatus();
+        pollingInterval = setInterval(fetchOrderStatus, 5000);
+        console.log('輪詢已啟動，間隔 5 秒');
+      } catch (error) {
+        console.error('送出訂單失敗:', error);
+        alert(`訂單送出失敗: ${error.message}`);
+        sessionStorage.removeItem('takeawayOrder');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      console.log('頁面加載完成');
+      document.getElementById('name').value = '';
+      document.getElementById('phone').value = '';
+
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      renderOrderedItems(cart);
+
+      const orderSubmitted = sessionStorage.getItem('takeawayOrder');
+      console.log('檢查 sessionStorage.takeawayOrder:', orderSubmitted);
+      if (orderSubmitted) {
+        const orderData = JSON.parse(orderSubmitted);
+        renderContactInfo(
+          orderData.CustomerName,
+          orderData.PhoneNumber,
+          orderData.PickupTime,
+          orderData.OrderID
+        );
+        renderOrderedItems(orderData.Items || []);
+        removeContactInputs();
+        updateOrderStatus('已送單');
+        fetchOrderStatus();
+        pollingInterval = setInterval(fetchOrderStatus, 5000);
+        console.log('輪詢已啟動，間隔 5 秒');
+      }
+    });
+  </script>
+</body>
+</html>
