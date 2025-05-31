@@ -423,7 +423,7 @@
 
       console.log(`查詢訂單狀態，OrderID: ${orderId}, 時間: ${new Date().toLocaleString('zh-TW')}`);
       try {
-        const response = await fetch(`http://localhost:5500/api/takeaway-orders/${orderId}`, {
+        const response = await fetch(`/api/takeaway-orders/${orderId}`, {
           method: 'GET'
         });
         console.log(`回應狀態: ${response.status}`);
@@ -442,7 +442,7 @@
 
     async function fetchStoreSchedule(date) {
       try {
-        const response = await fetch(`http://localhost:5500/api/store-schedule?date=${date}`, {
+        const response = await fetch(`/api/store-schedule?date=${date}`, {
           method: 'GET'
         });
         if (!response.ok) throw new Error('無法獲取營業時間');
@@ -515,7 +515,7 @@
       const MM = String(now.getMonth() + 1).padStart(2, '0');
       const DD = String(now.getDate()).padStart(2, '0');
       try {
-        const maxSeqRes = await fetch('http://localhost:5500/api/takeaway-orders/max-sequence');
+        const maxSeqRes = await fetch('/api/takeaway-orders/max-sequence');
         if (!maxSeqRes.ok) throw new Error(`獲取序號失敗: ${maxSeqRes.status}`);
         const { maxSequence } = await maxSeqRes.json();
         const next = String((maxSequence || 0) + 1).padStart(3, '0');
@@ -535,7 +535,7 @@
         };
 
         console.log('提交訂單 payload:', JSON.stringify(payload));
-        const res = await fetch('http://localhost:5500/api/takeaway-orders', {
+        const res = await fetch('/api/takeaway-orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -572,28 +572,40 @@
       }
     }
 
-    function setupWebSocket() {
-      ws = new WebSocket('ws://localhost:5500');
+    
+
+  function setupWebSocket() {
+    const wsUrl = 'wss://zhixue-roast-pork-rice-ordering-system-production.up.railway.app/ws';
+
+    try {
+      ws = new WebSocket(wsUrl);
+
       ws.onopen = () => {
-        console.log('WebSocket 連線已建立');
+        console.log('✅ WebSocket 已連線到 Railway');
+        ws.send('🛰 外帶訂單前端已連線');
       };
+
       ws.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        console.log('收到 WebSocket 消息:', message);
-        if (message.type === 'scheduleUpdate') {
-          console.log('營業時間已更新，重新獲取當日營業時間');
-          const now = new Date();
-          const dateStr = now.toISOString().split('T')[0];
-          fetchStoreSchedule(dateStr);
-        }
+        console.log('📩 收到伺服器訊息：', event.data);
+
+        // 👉 你可以在這裡根據 event.data 做處理
+        // 例如收到通知後刷新訂單狀態或顯示提示訊息
+        // alert(`📢 ${event.data}`);
       };
+
+      ws.onerror = (err) => {
+        console.error('❌ WebSocket 錯誤：', err);
+      };
+
       ws.onclose = () => {
-        console.log('WebSocket 連線已關閉');
+        console.warn('🔌 WebSocket 連線關閉');
       };
-      ws.onerror = (error) => {
-        console.error('WebSocket 錯誤:', error);
-      };
+
+    } catch (e) {
+      console.error('🚨 WebSocket 初始化失敗：', e);
     }
+  }
+
 
     document.addEventListener('DOMContentLoaded', () => {
       // 由於這是外帶頁，mode 固定寫成 takeout
