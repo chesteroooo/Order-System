@@ -626,12 +626,10 @@
         if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
         alert('✅ 訂單已成功送出！ 請至櫃台結帳');
 
-        const data = await res.json();
-        const returnedSeq = data.OrderSequence;
-
+    
    
         // 2) 把流水號顯示到剛剛新增的 <span id="seq-display"> 裡
-        document.getElementById('seq-display').innerText = `流水號：${returnedSeq}`;
+
         localStorage.setItem('orderSubmitted', 'true');
         localStorage.setItem('orderId', orderId);
         renderCart();
