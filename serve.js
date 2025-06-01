@@ -541,45 +541,59 @@ app.post('/store-info/schedule', authenticate, (req, res) => {
 });
 
 app.post('/store-info/batch-schedule', authenticate, (req, res) => {
-    const { DayOfWeek, Month, IsClosedToday } = req.body;
-    const year = new Date().getFullYear();
-    const startDate = new Date(`${year}-${Month}-01`);
-    const endDate = new Date(startDate);
-    endDate.setMonth(startDate.getMonth() + 1);
-    endDate.setDate(0);
+  const { DayOfWeek, Month, IsClosedToday, MorningStart, MorningEnd, EveningStart, EveningEnd } = req.body;
 
-    const updates = [];
-    for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
-        const dateStr = date.toISOString().split('T')[0];
-        const dayOfWeek = date.toLocaleDateString('zh-TW', { weekday: 'long' });
-        if (dayOfWeek === DayOfWeek) {
-            updates.push(new Promise((resolve, reject) => {
-                db.run(
-                    `UPDATE Store_Schedule SET IsClosedToday = ?, MorningStart = ?, MorningEnd = ?, EveningStart = ?, EveningEnd = ? WHERE Date = ?`,
-                    [IsClosedToday, IsClosedToday ? null : '11:30', IsClosedToday ? null : '13:30', IsClosedToday ? null : '16:30', IsClosedToday ? null : '20:00', dateStr],
-                    function(err) {
-                        if (err) {
-                            logger.error(`批量更新失敗: ${err.message}`);
-                            reject(err);
-                        } else {
-                            resolve();
-                        }
-                    }
-                );
-            }));
-        }
-    }
+  db.all(
+    `SELECT Date FROM Store_Schedule WHERE DayOfWeek = ? AND strftime('%m', Date) = ?`,
+    [DayOfWeek, Month],
+    (err, rows) => {
+      if (err) {
+        console.error('查詢日期失敗:', err);
+        return res.status(500).json({ error: '查詢日期失敗' });
+      }
 
-    Promise.all(updates)
-        .then(() => {
-            cache.del('storeSchedule');
-            logger.info(`批量更新成功: ${DayOfWeek} in ${Month}，緩存已清除`);
-            res.json({ message: '批量更新成功' });
-        })
-        .catch(err => {
-            logger.error(`批量更新失敗: ${err.message}`);
-            res.status(500).json({ error: err.message });
+      const updatePromises = rows.map(row => {
+        const dateStr = row.Date;
+
+        return new Promise((resolve, reject) => {
+          db.run(
+            `UPDATE Store_Schedule SET 
+              IsClosedToday = ?, 
+              MorningStart = ?, 
+              MorningEnd = ?, 
+              EveningStart = ?, 
+              EveningEnd = ? 
+             WHERE Date = ?`,
+            [
+              IsClosedToday,
+              IsClosedToday ? null : MorningStart,
+              IsClosedToday ? null : MorningEnd,
+              IsClosedToday ? null : EveningStart,
+              IsClosedToday ? null : EveningEnd,
+              dateStr
+            ],
+            function (err) {
+              if (err) {
+                console.error(`更新日期 ${dateStr} 失敗:`, err);
+                reject(err);
+              } else {
+                cache.del(`storeSchedule:${dateStr}`); // ✅ 清除該日 cache
+                resolve();
+              }
+            }
+          );
         });
+      });
+
+      Promise.all(updatePromises)
+        .then(() => {
+          res.json({ message: '批量更新成功' });
+        })
+        .catch(error => {
+          res.status(500).json({ error: '批量更新失敗', details: error });
+        });
+    }
+  );
 });
 
 // 獲取菜單 API（公開路由，給消費者使用）
