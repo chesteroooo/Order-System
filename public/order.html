@@ -629,6 +629,8 @@
         document.getElementById('note').value = '';
         fetchOrderStatus();
         pollingInterval = setInterval(fetchOrderStatus, 5000);
+        const backButton = document.querySelector('.back-button');
+        if (backButton) backButton.textContent = '重新訂購';
       } catch (err) {
         console.error('送出訂單失敗:', err);
         alert(`❌ 送出訂單時發生錯誤，請稍後再試: ${err.message}`);

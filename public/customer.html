@@ -564,6 +564,15 @@
         removeContactInputs();
         updateOrderStatus(result.status || '已送單');
         alert('✅ 外帶訂單送出成功');
+        const backBtn = document.querySelector('.back-button');
+        if (backBtn) {
+          backBtn.textContent = '🔁 重新訂購';
+          backBtn.onclick = () => {
+            sessionStorage.removeItem('takeawayOrder');
+            localStorage.removeItem('cart');
+            window.location.href = 'order_takeout.html?mode=takeout';
+          };
+        }
         localStorage.removeItem('cart');
         fetchOrderStatus();
         pollingInterval = setInterval(fetchOrderStatus, 5000);
