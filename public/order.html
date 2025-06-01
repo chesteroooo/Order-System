@@ -384,10 +384,7 @@
     }
 
     function resetAndNavigateToMainMenu() {
-      localStorage.removeItem('cart');
-      localStorage.removeItem('orderNotes');
-      localStorage.removeItem('orderSubmitted');
-      localStorage.removeItem('orderId');
+      
       if (pollingInterval) clearInterval(pollingInterval);
       if (ws) ws.close();
       const params = new URLSearchParams(window.location.search);
@@ -629,8 +626,26 @@
         document.getElementById('note').value = '';
         fetchOrderStatus();
         pollingInterval = setInterval(fetchOrderStatus, 5000);
-        const backButton = document.querySelector('.back-button');
-        if (backButton) backButton.textContent = '重新訂購';
+        const backBtn = document.querySelector('.back-button');
+        if (backBtn) {
+          backBtn.textContent = '重新訂購';
+          backBtn.onclick = () => {
+            localStorage.removeItem('cart');
+            localStorage.removeItem('orderNotes');
+            localStorage.removeItem('orderSubmitted');
+            localStorage.removeItem('orderId');
+
+            const params = new URLSearchParams(window.location.search);
+            const table = params.get('table') || '';
+            const mode = params.get('mode') || '';
+
+            let url = 'mainmenu.html';
+            if (table) url += `?table=${encodeURIComponent(table)}`;
+            if (mode) url += table ? `&mode=${encodeURIComponent(mode)}` : `?mode=${encodeURIComponent(mode)}`;
+
+            window.location.href = url;
+          };
+}
       } catch (err) {
         console.error('送出訂單失敗:', err);
         alert(`❌ 送出訂單時發生錯誤，請稍後再試: ${err.message}`);
