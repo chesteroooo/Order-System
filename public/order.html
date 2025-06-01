@@ -619,13 +619,17 @@
           body: JSON.stringify(payload)
         });
         if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
-        alert('✅ 訂單已成功送出！');
+        alert('✅ 訂單已成功送出！ 請至櫃台結帳');
         localStorage.setItem('orderSubmitted', 'true');
         localStorage.setItem('orderId', orderId);
         renderCart();
-        document.getElementById('note').value = '';
         fetchOrderStatus();
         pollingInterval = setInterval(fetchOrderStatus, 5000);
+        const menuDropdown = document.getElementById('menuDropdown');
+        if (menuDropdown) {
+          menuDropdown.style.display = 'none';
+        }
+
         const backBtn = document.querySelector('.back-button');
         if (backBtn) {
           backBtn.textContent = '重新訂購';
