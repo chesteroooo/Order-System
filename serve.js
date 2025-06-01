@@ -759,45 +759,40 @@ app.delete('/menu/delete/:id', authenticate, (req, res) => {
     });
 });
 // 3. 然後在某一行把你想要的 ROUTE 寫完整
-app.get('/api/takeaway-orders/max-sequence', (req, res) => {
-  // ──（A）先取得臺北時區的 YYYY/MM/DD ──
+app.get('/api/dinein-orders/max-sequence', (req, res) => {
+  // 1. 先用 toLocaleDateString 拿到「台北時區的 yyyy/mm/dd」
   const taipeiDateString = new Date().toLocaleDateString('zh-TW', {
     timeZone: 'Asia/Taipei',
     year:  'numeric',
     month: '2-digit',
     day:   '2-digit'
   });
-  // 例如 taipeiDateString = "2025/06/02"
-  const [year, month, day] = taipeiDateString.split('/'); 
-  // year="2025", month="06", day="02"
+  // 比如會得到 "2025/06/02"
+  const [year, month, day] = taipeiDateString.split('/');
+  // 將它拼成 "YYYYMMDD"
   const baseDatePrefix = `${year}${month}${day}`; // "20250602"
 
-  // ──（B）再把外帶前綴 "20" 串上去，變成 "2020250602" ──
-  const fullDatePrefix = `20${baseDatePrefix}`; // "2020250602"
-  console.log(`[後端 Debug] fullDatePrefix (外帶) = "${fullDatePrefix}"`);
+  // 2. 再把「內用前綴 10」串上去 → 就是 "10YYYYMMDD"
+  const fullDatePrefix = `10${baseDatePrefix}`;  // "1020250602"
+  console.log(`[後端 Debug] fullDatePrefix (內用) = "${fullDatePrefix}"`);
 
-  // ──（C）呼叫 SQLite，把這個 fullDatePrefix 丟給 LIKE 條件 ──
+  // 3. 用這個前綴去查 DineIn_Orders
   db.get(
-    `SELECT MAX(OrderSequence) AS maxSequence
-       FROM Takeaway_Orders
+    `SELECT MAX(OrderSequence) as maxSequence 
+       FROM DineIn_Orders 
       WHERE OrderID LIKE ?;`,
-    [`${fullDatePrefix}%`],  // 例如 ["2020250602%"]
+    [`${fullDatePrefix}%`],  // 例如 ["1020250602%"]
     (err, row) => {
-      // 這裡的 callback 仍然屬於上面 app.get 的範圍
-      // 所以「res」這個參數可以被正確存取
-
       if (err) {
-        // 只要把 … 換成真實程式碼就行，不要留代號
-        console.error(`[後端 Error] 查 maxSequence 失敗：${err.message}`);
+        console.error(`[後端 Error] 查詢最大 OrderSequence 失敗: ${err.message}`);
         return res.status(500).json({ error: err.message });
       }
-
-      // 當沒有錯誤時，row.maxSequence 可能是 null，於是用 || 0
       const maxSequence = row.maxSequence || 0;
       return res.json({ maxSequence });
     }
   );
 });
+
 
 // 提交內用訂單 API（公開路由，給消費者使用）
 app.post('/api/dinein-orders', (req, res) => {
@@ -975,40 +970,42 @@ app.delete('/api/dinein-orders/:orderId/:orderSequence', authenticate, (req, res
         }
     );
 });
-
-// 查詢當日最大 OrderSequence API（外帶）
 app.get('/api/takeaway-orders/max-sequence', (req, res) => {
-  // 1. 用 toLocaleDateString 直接拿到「台北時區的 YYYY/MM/DD」
+  // ──（A）先取得臺北時區的 YYYY/MM/DD ──
   const taipeiDateString = new Date().toLocaleDateString('zh-TW', {
     timeZone: 'Asia/Taipei',
     year:  'numeric',
     month: '2-digit',
     day:   '2-digit'
   });
-  //    這裡 taipeiDateString 會像 "2025/06/02"
+  // 例如 taipeiDateString = "2025/06/02"
+  const [year, month, day] = taipeiDateString.split('/'); 
+  // year="2025", month="06", day="02"
+  const baseDatePrefix = `${year}${month}${day}`; // "20250602"
 
-  // 2. 拆出 YYYY, MM, DD
-  const [ year, month, day ] = taipeiDateString.split('/'); 
-  //    year  = "2025"
-  //    month = "06"
-  //    day   = "02"
+  // ──（B）再把外帶前綴 "20" 串上去，變成 "2020250602" ──
+  const fullDatePrefix = `20${baseDatePrefix}`; // "2020250602"
+  console.log(`[後端 Debug] fullDatePrefix (外帶) = "${fullDatePrefix}"`);
 
-  const datePrefix = `${year}${month}${day}`; // "20250602"
-  console.log(`[後端 Debug] （台北時區）datePrefix = "${datePrefix}"`);
-
-  // 3. 用這個 prefix 去查當天的 maxSequence   
+  // ──（C）呼叫 SQLite，把這個 fullDatePrefix 丟給 LIKE 條件 ──
   db.get(
-    `SELECT MAX(OrderSequence) as maxSequence 
-       FROM Takeaway_Orders 
-      WHERE OrderID LIKE ?`,
-    [`${datePrefix}%`],
+    `SELECT MAX(OrderSequence) AS maxSequence
+       FROM Takeaway_Orders
+      WHERE OrderID LIKE ?;`,
+    [`${fullDatePrefix}%`],  // 例如 ["2020250602%"]
     (err, row) => {
+      // 這裡的 callback 仍然屬於上面 app.get 的範圍
+      // 所以「res」這個參數可以被正確存取
+
       if (err) {
-        logger.error(`查詢最大 OrderSequence (外帶) 失敗: ${err.message}`);
+        // 只要把 … 換成真實程式碼就行，不要留代號
+        console.error(`[後端 Error] 查 maxSequence 失敗：${err.message}`);
         return res.status(500).json({ error: err.message });
       }
+
+      // 當沒有錯誤時，row.maxSequence 可能是 null，於是用 || 0
       const maxSequence = row.maxSequence || 0;
-      res.json({ maxSequence });
+      return res.json({ maxSequence });
     }
   );
 });
