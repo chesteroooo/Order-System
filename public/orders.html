@@ -510,26 +510,12 @@
 
     <audio id="audio-notification" src="sounds/ding.mp3" preload="auto"></audio>
     <script>
-        let notifyAudio = new Audio('sound/notify.mp3'); // 請依實際路徑替換
-         let audioReady = false;
+        
         document.addEventListener('DOMContentLoaded', () => {
         setupWebSocket();
         loadOrders();
 
         })
-
-            document.addEventListener('click', () => {
-            if (!audioReady) {
-            notifyAudio.play().then(() => {
-                notifyAudio.pause();  // 解鎖音訊後暫停
-                notifyAudio.currentTime = 0;
-                audioReady = true;
-                console.log('🔊 音訊已解鎖');
-            }).catch(err => {
-                console.log('音訊解鎖失敗:', err);
-            });
-            }
-        });
         function playNotificationSound() {
             const audio = document.getElementById('audio-notification');
             if (audio) {
