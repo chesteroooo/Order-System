@@ -810,6 +810,14 @@
             orders.forEach(order => {
                 const item = document.createElement('div');
                 item.className = 'order-item';
+
+                if (
+                    selectedOrder &&
+                    order.OrderID === selectedOrder.OrderID &&
+                    order.OrderSequence === selectedOrder.OrderSequence
+                ) {
+                    item.classList.add('selected');
+                }
                 item.dataset.orderId = order.OrderID;
                 item.dataset.orderSequence = order.OrderSequence;
                 let statusClass = 'new';
@@ -949,8 +957,7 @@
                     await loadOrders();
                     selectedOrder.Status = '已接單';
                     renderOrderDetails(selectedOrder);
-                    const selectedRow = document.querySelector(`[data-id="${selectedOrder.OrderID}"]`);
-                    if (selectedRow) selectedRow.classList.add('selected');
+                    
                     
                 } else {
                     if (response.status === 401) {
