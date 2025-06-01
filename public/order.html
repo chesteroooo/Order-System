@@ -625,6 +625,8 @@
         });
         if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
         alert('✅ 訂單已成功送出！ 請至櫃台結帳');
+
+        const data = await res.json();
         const returnedSeq = data.OrderSequence;
 
    

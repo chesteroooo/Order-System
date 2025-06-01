@@ -564,6 +564,11 @@
         removeContactInputs();
         updateOrderStatus(result.status || '已送單');
         alert('✅ 外帶訂單送出成功');
+          const returnedSeq = data.OrderSequence;
+        const returnedID  = data.OrderID;
+        localStorage.setItem('orderSubmitted', 'true');
+        localStorage.setItem('orderId', returnedID);
+
         const backBtn = document.querySelector('.back-button');
         if (backBtn) {
           backBtn.textContent = '重新訂購';
