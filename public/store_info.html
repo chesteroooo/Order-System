@@ -886,10 +886,10 @@
                 DayOfWeek: day,
                 Month: month,
                 IsClosedToday: isClosed ? 1 : 0,
-                MorningStart: mornStart,
-                MorningEnd: mornEnd,
-                EveningStart: eveStart,
-                EveningEnd: eveEnd
+                MorningStart: MorningStart,
+                MorningEnd: MorningEnd,
+                EveningStart: EveningStart,
+                EveningEnd: EveningEnd
             })
         }).then(response => {
             if (response.status === 401) {
