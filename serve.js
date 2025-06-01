@@ -1285,6 +1285,7 @@ process.on('SIGINT', () => {
     });
 });
 
+
 // 啟動服務器
 dbInit.then(() => {
     logger.info('資料庫初始化完成');

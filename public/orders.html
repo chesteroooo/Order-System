@@ -510,19 +510,32 @@
 
     <audio id="audio-notification" src="sounds/ding.mp3" preload="auto"></audio>
     <script>
-
+        let notifyAudio = new Audio('sounds/ding.mp3'); // 請依實際路徑替換
+         let audioReady = false;
         document.addEventListener('DOMContentLoaded', () => {
         setupWebSocket();
         loadOrders();
 
         })
-        function playNotificationSound() {
-            const audio = document.getElementById('audio-notification');
-            if (audio) {
-                audio.currentTime = 0;  // 強制從頭播放
-                audio.play().catch(err => {
-                    console.warn('播放提示音失敗：', err);
-                });
+
+            document.addEventListener('click', () => {
+            if (!audioReady) {
+            notifyAudio.play().then(() => {
+                notifyAudio.pause();  // 解鎖音訊後暫停
+                notifyAudio.currentTime = 0;
+                audioReady = true;
+                console.log('🔊 音訊已解鎖');
+            }).catch(err => {
+                console.log('音訊解鎖失敗:', err);
+            });
+            }
+        });
+        function playNotifySound() {
+            if (audioReady) {
+            notifyAudio.currentTime = 0;
+            notifyAudio.play().catch(err => console.log('播放失敗:', err));
+            } else {
+            console.log('尚未解鎖音訊');
             }
         }
 
@@ -581,7 +594,7 @@
 
       if (message.type === 'newOrder') {
         // 只在 newOrder 時播放提示音並重新載入訂單列表
-        playNotificationSound();
+        playNotifySound();
         await loadOrders();
       }
       else if (message.type === 'orderUpdate' || message.type === 'orderDelete') {
