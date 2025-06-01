@@ -870,10 +870,10 @@
             }
             const isClosed = document.getElementById('batchStatus').value === '1';
             const month = document.getElementById('batchMonth').value;
-            const MorningStart = mornStart;
-            const MorningEnd = mornEnd;
-            const EveningStart = eveStart;
-            const EveningEnd = eveEnd;
+            const MorningStart = document.getElementById('morningStart').value;
+            const MorningEnd = document.getElementById('morningEnd').value;
+            const EveningStart = document.getElementById('eveningStart').value;
+            const EveningEnd = document.getElementById('eveningEnd').value;
 
     const promises = selectedDays.map(day => {
         return fetch('/store-info/batch-schedule', {
