@@ -33,7 +33,7 @@ const logger = winston.createLogger({
 });
 
 // 設置緩存
-const cache = new NodeCache({ stdTTL: 600 });
+const cache = new NodeCache({ stdTTL: 60 });
 
 // 設置圖片儲存路徑（改為專案根目錄下的 images）
 const uploadDir = path.join(__dirname, '..', 'images');
