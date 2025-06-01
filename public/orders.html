@@ -508,21 +508,39 @@
         </div>
     </div>
 
-    <audio id="audio-notification" src="sounds/ding.mp3" preload="auto"></audio>
+   
     <script>
-        
+        const notifyAudio = new Audio('sound/ding.mp3'); // 改成你的聲音檔
+        let audioReady = false;
         document.addEventListener('DOMContentLoaded', () => {
         setupWebSocket();
         loadOrders();
 
         })
-        function playNotificationSound() {
-            const audio = document.getElementById('audio-notification');
-            if (audio) {
-                audio.currentTime = 0;  // 強制從頭播放
-                audio.play().catch(err => {
-                    console.warn('播放提示音失敗：', err);
-                });
+
+        document.addEventListener('click', () => {
+        if (!audioReady) {
+            // 暫存原始音量
+            const originalVolume = notifyAudio.volume;
+            notifyAudio.volume = 0; // 先靜音
+            notifyAudio.play().then(() => {
+            notifyAudio.pause();    // 解鎖後立即暫停
+            notifyAudio.currentTime = 0;
+            notifyAudio.volume = originalVolume; // 恢復原本音量
+            audioReady = true;
+            console.log('🔊 音訊已解鎖');
+            }).catch(err => {
+            console.log('音訊解鎖失敗:', err);
+            });
+        }
+        });
+         // ✅ 只有收到訂單時才播放音效
+        function playNotifySound() {
+            if (audioReady) {
+            notifyAudio.currentTime = 0;
+            notifyAudio.play().catch(err => console.log('播放失敗:', err));
+            } else {
+            console.log('尚未解鎖音訊');
             }
         }
 
@@ -581,7 +599,7 @@
 
       if (message.type === 'newOrder') {
         // 只在 newOrder 時播放提示音並重新載入訂單列表
-        playNotificationSound();
+        playNotifySound();
         await loadOrders();
       }
       else if (message.type === 'orderUpdate' || message.type === 'orderDelete') {
