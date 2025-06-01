@@ -619,6 +619,34 @@
   }
 
 
+  document.addEventListener('DOMContentLoaded', () => {
+  const orderSubmitted = localStorage.getItem('orderSubmitted');
+
+  if (orderSubmitted === 'true') {
+    const backButton = document.querySelector('.back-button');
+    if (backButton) {
+      backButton.textContent = '重新訂購';
+      backButton.onclick = () => {
+        sessionStorage.removeItem('dineinOrder');
+        localStorage.removeItem('cart');
+        localStorage.removeItem('orderNotes');
+        localStorage.removeItem('orderSubmitted');
+        localStorage.removeItem('orderId');
+
+        const params = new URLSearchParams(window.location.search);
+        const table = params.get('table');
+        const mode = params.get('mode');
+
+        let url = 'mainmenu.html';
+        if (table) url += `?table=${encodeURIComponent(table)}`;
+        if (mode) url += table ? `&mode=${encodeURIComponent(mode)}` : `?mode=${encodeURIComponent(mode)}`;
+
+        window.location.href = url;
+      };
+    }
+  }
+});
+
     document.addEventListener('DOMContentLoaded', () => {
       // 由於這是外帶頁，mode 固定寫成 takeout
       const mode = 'takeout';
