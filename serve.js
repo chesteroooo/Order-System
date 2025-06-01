@@ -961,29 +961,39 @@ app.delete('/api/dinein-orders/:orderId/:orderSequence', authenticate, (req, res
 
 // 查詢當日最大 OrderSequence API（外帶）
 app.get('/api/takeaway-orders/max-sequence', (req, res) => {
-     const taipeiStr = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
-    // 2. 把那個字串再餵給 Date()，變成「真正的台北時間」
-    const nowTpe = new Date(taipeiStr);
+  // 1. 用 toLocaleDateString 直接拿到「台北時區的 YYYY/MM/DD」
+  const taipeiDateString = new Date().toLocaleDateString('zh-TW', {
+    timeZone: 'Asia/Taipei',
+    year:  'numeric',
+    month: '2-digit',
+    day:   '2-digit'
+  });
+  //    這裡 taipeiDateString 會像 "2025/06/02"
 
-    const year  = nowTpe.getFullYear();                   // 2025
-    const month = String(nowTpe.getMonth() + 1).padStart(2, '0'); // "06"
-    const day   = String(nowTpe.getDate()).padStart(2, '0');      // "02"
-    const datePrefix = `${year}${month}${day}`;            // "20250602"
-    console.log(`[後端 Debug] （台北時區）datePrefix = "${datePrefix}"`);
-    
-    db.get(
-        `SELECT MAX(OrderSequence) as maxSequence FROM Takeaway_Orders WHERE OrderID LIKE ?`,
-        [`${datePrefix}%`],
-        (err, row) => {
-            if (err) {
-                logger.error(`查詢最大 OrderSequence (外帶) 失敗: ${err.message}`);
-                res.status(500).json({ error: err.message });
-                return;
-            }
-            const maxSequence = row.maxSequence || 0;
-            res.json({ maxSequence });
-        }
-    );
+  // 2. 拆出 YYYY, MM, DD
+  const [ year, month, day ] = taipeiDateString.split('/'); 
+  //    year  = "2025"
+  //    month = "06"
+  //    day   = "02"
+
+  const datePrefix = `${year}${month}${day}`; // "20250602"
+  console.log(`[後端 Debug] （台北時區）datePrefix = "${datePrefix}"`);
+
+  // 3. 用這個 prefix 去查當天的 maxSequence   
+  db.get(
+    `SELECT MAX(OrderSequence) as maxSequence 
+       FROM Takeaway_Orders 
+      WHERE OrderID LIKE ?`,
+    [`${datePrefix}%`],
+    (err, row) => {
+      if (err) {
+        logger.error(`查詢最大 OrderSequence (外帶) 失敗: ${err.message}`);
+        return res.status(500).json({ error: err.message });
+      }
+      const maxSequence = row.maxSequence || 0;
+      res.json({ maxSequence });
+    }
+  );
 });
 
 // 提交外帶訂單 API（公開路由，給消費者使用）
