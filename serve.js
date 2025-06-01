@@ -781,7 +781,11 @@ db.get(
     WHERE OrderID LIKE ?`,
   [`${fullDatePrefix}%`],  // 比如 "2020250602%"
   (err, row) => {
-    if (err) { … }
+    if (err) {
+        console.error(`[後端 Error] 查 maxSequence 失敗：${err.message}`);
+        // 回傳 500 給前端，並攜帶錯誤訊息
+        return res.status(500).json({ error: err.message });
+    }
     const maxSequence = row.maxSequence || 0;
     res.json({ maxSequence });
   }
