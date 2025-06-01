@@ -154,6 +154,10 @@
     margin: 0 auto;
     padding-bottom: 120px;
   }
+    .menu-container {
+    overflow-y: auto;
+    padding-bottom: 140px; /* 給浮動按鈕空間 */
+  }
   .item {
     display: flex;
     flex-direction: column;
@@ -421,7 +425,9 @@
     <div class="tab" data-category="Side_Dishes" onclick="filterMenu('Side_Dishes')">小菜類</div>
     <div class="tab" data-category="Steam_Dishes" onclick="filterMenu('Steam_Dishes')">蒸的比較慢</div>
   </div>
-  <div class="menu"></div>
+    <div class="menu-container">
+    <div class="menu">...</div>
+  </div>
   <a href="#" id="view-cart" class="cart-button">
       查看訂單內容　$<span id="cart-total">0</span>
   </a>
