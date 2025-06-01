@@ -621,29 +621,20 @@
 
   document.addEventListener('DOMContentLoaded', () => {
   const orderSubmitted = localStorage.getItem('orderSubmitted');
+  const backButton = document.querySelector('.back-button');
 
-  if (orderSubmitted === 'true') {
-    const backButton = document.querySelector('.back-button');
-    if (backButton) {
-      backButton.textContent = '重新訂購';
-      backButton.onclick = () => {
-        sessionStorage.removeItem('dineinOrder');
-        localStorage.removeItem('cart');
-        localStorage.removeItem('orderNotes');
-        localStorage.removeItem('orderSubmitted');
-        localStorage.removeItem('orderId');
+  if (orderSubmitted === 'true' && backButton) {
+    backButton.textContent = '重新訂購';
+    backButton.removeAttribute('onclick'); // ✅ 移除原本寫在 HTML 的 onclick
+    backButton.onclick = () => {
+      sessionStorage.removeItem('takeawayOrder');
+      localStorage.removeItem('cart');
+      localStorage.removeItem('orderNotes');
+      localStorage.removeItem('orderSubmitted');
+      localStorage.removeItem('orderId');
 
-        const params = new URLSearchParams(window.location.search);
-        const table = params.get('table');
-        const mode = params.get('mode');
-
-        let url = 'mainmenu.html';
-        if (table) url += `?table=${encodeURIComponent(table)}`;
-        if (mode) url += table ? `&mode=${encodeURIComponent(mode)}` : `?mode=${encodeURIComponent(mode)}`;
-
-        window.location.href = url;
-      };
-    }
+      window.location.href = 'mainmenu_takeout.html?mode=takeout';
+    };
   }
 });
 

@@ -749,10 +749,11 @@
     document.addEventListener('DOMContentLoaded', () => {
   const orderSubmitted = localStorage.getItem('orderSubmitted');
 
-  if (orderSubmitted === 'true') {
+    if (orderSubmitted === 'true') {
     const backButton = document.querySelector('.back-button');
     if (backButton) {
       backButton.textContent = '重新訂購';
+      backButton.removeAttribute('onclick'); // ✅ 移除原本的 onclick 屬性
       backButton.onclick = () => {
         sessionStorage.removeItem('dineinOrder');
         localStorage.removeItem('cart');
