@@ -354,6 +354,9 @@
 
   <div class="cart-container">
     <button class="back-button" onclick="resetAndNavigateToMainMenu()">← 返回主選單</button>
+    <div style="text-align:center; margin-top: 10px;">
+    <span id="seq-display" style="color: green; font-weight: 600; font-size: 16px;"></span>
+  </div>
     <div class="status-message" id="statusMessage"></div>
     <div class="cart-box">
       <h2>餐點內容</h2>
@@ -367,6 +370,7 @@
       <strong>總價格:</strong> $0 <!-- JS 會動態更新 -->
     </div>
     <button class="submit-button" id="submitButton" onclick="submitOrder()">確定送出訂單</button>
+    
   </div>
 
   <script>
@@ -621,6 +625,11 @@
         });
         if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
         alert('✅ 訂單已成功送出！ 請至櫃台結帳');
+        const returnedSeq = data.OrderSequence;
+
+   
+        // 2) 把流水號顯示到剛剛新增的 <span id="seq-display"> 裡
+        document.getElementById('seq-display').innerText = `流水號：${returnedSeq}`;
         localStorage.setItem('orderSubmitted', 'true');
         localStorage.setItem('orderId', orderId);
         renderCart();
