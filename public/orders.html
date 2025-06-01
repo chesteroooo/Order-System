@@ -949,6 +949,8 @@
                     await loadOrders();
                     selectedOrder.Status = '已接單';
                     renderOrderDetails(selectedOrder);
+                    const selectedRow = document.querySelector(`[data-id="${selectedOrder.OrderID}"]`);
+                    if (selectedRow) selectedRow.classList.add('selected');
                     
                 } else {
                     if (response.status === 401) {
