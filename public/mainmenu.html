@@ -270,7 +270,7 @@
     border-radius: 50%;
     background-color: currentColor;
   }
-  .cart-button {
+.cart-button {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -279,24 +279,26 @@
     color: #4b4231;
     font-weight: 700;
     font-size: 18px;
-    margin: 20px auto;
     border-radius: 8px;
     cursor: pointer;
     border: 2px solid #b7ae99;
     text-decoration: none;
-    max-width: 300px;
     transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
     animation: pulse 2s infinite ease-in-out;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    max-width: none; /* 取消舊設定 */
+    z-index: 999;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
   }
   .cart-button:hover {
     background-color: #8b7b4c;
     color: #fff;
-    transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(75, 66, 49, 0.3);
     animation: none;
-  }
-  .cart-button:active {
-    animation: bounce 0.2s ease;
   }
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
