@@ -836,6 +836,11 @@
             });
         }
 
+        function closeOrderDetails() {
+            const container = document.getElementById('orderDetails');
+            container.innerHTML = ''; // 或 container.style.display = 'none';
+        }
+
         // 渲染訂單詳情
         function renderOrderDetails(order) {
             const details = document.getElementById('orderDetails');
@@ -924,10 +929,7 @@
             });
         }
 
-        function closeOrderDetails() {
-        const container = document.getElementById('order-details');
-        container.innerHTML = ''; // 或 container.style.display = 'none';
-        }
+    
                 // 接單
         async function acceptOrder(orderId, orderSequence, type) {
             try {
