@@ -512,6 +512,44 @@
       if (status === '已完成') {
         if (pollingInterval) clearInterval(pollingInterval);
       }
+      function updateOrderStatus(status) {
+      const submitButton = document.getElementById('submitButton');
+      submitButton.textContent = `訂單狀態: ${status}`;
+      submitButton.classList.add('status-mode');
+      submitButton.onclick = null;
+
+      if (status === '已完成') {
+        if (pollingInterval) clearInterval(pollingInterval);
+      }
+
+      if (status === '無法獲取') {
+        console.warn('⚠️ 訂單資料不存在，將清除並返回主畫面');
+
+        // 清除資料
+        localStorage.removeItem('cart');
+        sessionStorage.removeItem('dineinOrder');
+        localStorage.removeItem('orderNotes');
+        localStorage.removeItem('orderSubmitted');
+        localStorage.removeItem('orderId');
+
+        if (pollingInterval) clearInterval(pollingInterval);
+        if (ws) ws.close();
+
+        // 取得參數
+        const params = new URLSearchParams(window.location.search);
+        const table = params.get('table');
+        const mode = params.get('mode');
+
+        let url = 'mainmenu.html';
+        if (table) url += `?table=${encodeURIComponent(table)}`;
+        if (mode) url += table ? `&mode=${encodeURIComponent(mode)}` : `?mode=${encodeURIComponent(mode)}`;
+
+        setTimeout(() => {
+          window.location.href = url;
+        }, 2000); // 等 2 秒讓使用者看到狀態再跳轉
+      }
+    }
+
     }
 
     async function fetchStoreSchedule(date) {
