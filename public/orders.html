@@ -921,6 +921,9 @@
                     alert('訂單已接單');
                     // 重新載入訂單數據
                     await loadOrders();
+                    selectedOrder.Status = '已接單';
+                    renderOrderDetails(selectedOrder);
+                    
                 } else {
                     if (response.status === 401) {
                         alert('未登入，請先登入！');
