@@ -630,6 +630,11 @@
           menuDropdown.style.display = 'none';
         }
 
+        const menuToggle = document.querySelector('.menu-toggle');
+        if (menuToggle) {
+          menuToggle.style.display = 'none';
+        }
+
         const backBtn = document.querySelector('.back-button');
         if (backBtn) {
           backBtn.textContent = '重新訂購';
@@ -694,7 +699,7 @@
 
       fetchStoreSchedule(dateStr).then(schedule => {
         if (!isWithinBusinessHours(schedule, now)) {
-          showStatusMessage(`目前非營業時間（${schedule.MorningStart || '無'}–${schedule.MorningEnd || '無'} 或 ${schedule.EveningStart || '無'}–${schedule.EveningEnd || '無'}），請於營業時間內下單`);
+          showStatusMessage(`目前非營業時間，請於營業時間內下單`);
         } else {
           const statusMessage = document.getElementById('statusMessage');
           statusMessage.classList.remove('show');
