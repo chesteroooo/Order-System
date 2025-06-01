@@ -388,6 +388,23 @@
             z-index: 1000;
         }
 
+        .close-details {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #888;
+            }
+            .close-details:hover {
+            color: #000;
+            }
+            .order-details {
+            position: relative; /* 確保 close-details 定位正確 */
+            }
+
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
@@ -833,6 +850,9 @@
             const showCompleteButton = order.Status === '已接單';
             const showCancelButton = order.Status !== '訂單取消';
             details.innerHTML = `
+                <div class="order-details-header">
+                    <button class="close-details" onclick="closeOrderDetails()">✖</button>
+                </div>
                 <h3>訂單詳情</h3>
                 <div class="overview">
                     <p><strong>訂單編號:</strong> ${order.OrderID}-${order.OrderSequence}</p>
@@ -904,7 +924,11 @@
             });
         }
 
-        // 接單
+        function closeOrderDetails() {
+        const container = document.getElementById('order-details');
+        container.innerHTML = ''; // 或 container.style.display = 'none';
+        }
+                // 接單
         async function acceptOrder(orderId, orderSequence, type) {
             try {
                 const endpoint = `/api/${type}-orders/complete`;
