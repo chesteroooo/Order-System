@@ -518,18 +518,22 @@
 
         })
 
-            document.addEventListener('click', () => {
+         document.addEventListener('click', () => {
             if (!audioReady) {
-            notifyAudio.play().then(() => {
-                notifyAudio.pause();  // 解鎖音訊後暫停
+                // 暫存原始音量
+                const originalVolume = notifyAudio.volume;
+                notifyAudio.volume = 0; // 先靜音
+                notifyAudio.play().then(() => {
+                notifyAudio.pause();    // 解鎖後立即暫停
                 notifyAudio.currentTime = 0;
+                notifyAudio.volume = originalVolume; // 恢復原本音量
                 audioReady = true;
                 console.log('🔊 音訊已解鎖');
-            }).catch(err => {
+                }).catch(err => {
                 console.log('音訊解鎖失敗:', err);
-            });
+                });
             }
-        });
+            });
         function playNotifySound() {
             if (audioReady) {
             notifyAudio.currentTime = 0;
