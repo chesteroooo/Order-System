@@ -758,39 +758,46 @@ app.delete('/menu/delete/:id', authenticate, (req, res) => {
         res.json({ message: '品項已刪除', changes: this.changes });
     });
 });
+// 3. 然後在某一行把你想要的 ROUTE 寫完整
+app.get('/api/takeaway-orders/max-sequence', (req, res) => {
+  // ──（A）先取得臺北時區的 YYYY/MM/DD ──
+  const taipeiDateString = new Date().toLocaleDateString('zh-TW', {
+    timeZone: 'Asia/Taipei',
+    year:  'numeric',
+    month: '2-digit',
+    day:   '2-digit'
+  });
+  // 例如 taipeiDateString = "2025/06/02"
+  const [year, month, day] = taipeiDateString.split('/'); 
+  // year="2025", month="06", day="02"
+  const baseDatePrefix = `${year}${month}${day}`; // "20250602"
 
-// 1. 先用台北時區拿到 YYYYMMDD
-const taipeiDateString = new Date().toLocaleDateString('zh-TW', {
-  timeZone: 'Asia/Taipei',
-  year:  'numeric',
-  month: '2-digit',
-  day:   '2-digit'
-});
-// 例如 "2025/06/02"
-const [year, month, day] = taipeiDateString.split('/');
-const baseDatePrefix = `${year}${month}${day}`; // "20250602"
+  // ──（B）再把外帶前綴 "20" 串上去，變成 "2020250602" ──
+  const fullDatePrefix = `20${baseDatePrefix}`; // "2020250602"
+  console.log(`[後端 Debug] fullDatePrefix (外帶) = "${fullDatePrefix}"`);
 
-// 2. 再把 "20" 這個外帶的固定前綴串上去
-const fullDatePrefix = `20${baseDatePrefix}`;  // "2020250602"
-console.log(`[後端 Debug] fullDatePrefix (外帶) = "${fullDatePrefix}"`);
+  // ──（C）呼叫 SQLite，把這個 fullDatePrefix 丟給 LIKE 條件 ──
+  db.get(
+    `SELECT MAX(OrderSequence) AS maxSequence
+       FROM Takeaway_Orders
+      WHERE OrderID LIKE ?;`,
+    [`${fullDatePrefix}%`],  // 例如 ["2020250602%"]
+    (err, row) => {
+      // 這裡的 callback 仍然屬於上面 app.get 的範圍
+      // 所以「res」這個參數可以被正確存取
 
-// 3. 用這個去做 LIKE
-db.get(
-  `SELECT MAX(OrderSequence) as maxSequence
-     FROM Takeaway_Orders
-    WHERE OrderID LIKE ?`,
-  [`${fullDatePrefix}%`],  // 比如 "2020250602%"
-  (err, row) => {
-    if (err) {
+      if (err) {
+        // 只要把 … 換成真實程式碼就行，不要留代號
         console.error(`[後端 Error] 查 maxSequence 失敗：${err.message}`);
-        // 回傳 500 給前端，並攜帶錯誤訊息
         return res.status(500).json({ error: err.message });
-    }
-    const maxSequence = row.maxSequence || 0;
-    res.json({ maxSequence });
-  }
-);
+      }
 
+      // 當沒有錯誤時，row.maxSequence 可能是 null，於是用 || 0
+      const maxSequence = row.maxSequence || 0;
+      return res.json({ maxSequence });
+    }
+  );
+});
 
 // 提交內用訂單 API（公開路由，給消費者使用）
 app.post('/api/dinein-orders', (req, res) => {
