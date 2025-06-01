@@ -870,23 +870,36 @@
             }
             const isClosed = document.getElementById('batchStatus').value === '1';
             const month = document.getElementById('batchMonth').value;
-            const promises = selectedDays.map(day => {
-                return fetch('/store-info/batch-schedule', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${sessionStorage.getItem('isLoggedIn')}`
-                    },
-                    body: JSON.stringify({ DayOfWeek: day, Month: month, IsClosedToday: isClosed ? 1 : 0 })
-                }).then(response => {
-                    if (response.status === 401) {
-                        alert('未登入，請先登入！');
-                        window.location.href = 'login.html';
-                        throw new Error('未登入');
-                    }
-                    return response.json();
-                });
-            });
+            const MorningStart = document.getElementById('morningStart').value;
+    const MorningEnd = document.getElementById('morningEnd').value;
+    const EveningStart = document.getElementById('eveningStart').value;
+    const EveningEnd = document.getElementById('eveningEnd').value;
+
+    const promises = selectedDays.map(day => {
+        return fetch('/store-info/batch-schedule', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${sessionStorage.getItem('isLoggedIn')}`
+            },
+            body: JSON.stringify({
+                DayOfWeek: day,
+                Month: month,
+                IsClosedToday: isClosed ? 1 : 0,
+                MorningStart,
+                MorningEnd,
+                EveningStart,
+                EveningEnd
+            })
+        }).then(response => {
+            if (response.status === 401) {
+                alert('未登入，請先登入！');
+                window.location.href = 'login.html';
+                throw new Error('未登入');
+            }
+            return response.json();
+        });
+    });
             try {
                 await Promise.all(promises);
                 alert('批量更新成功');
