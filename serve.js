@@ -759,28 +759,33 @@ app.delete('/menu/delete/:id', authenticate, (req, res) => {
     });
 });
 
-// 查詢當日最大 OrderSequence API（內用）
-app.get('/api/dinein-orders/max-sequence', (req, res) => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const datePrefix = `10${year}${month}${day}`;
-
-    db.get(
-        `SELECT MAX(OrderSequence) as maxSequence FROM DineIn_Orders WHERE OrderID LIKE ?`,
-        [`${datePrefix}%`],
-        (err, row) => {
-            if (err) {
-                logger.error(`查詢最大 OrderSequence 失敗: ${err.message}`);
-                res.status(500).json({ error: err.message });
-                return;
-            }
-            const maxSequence = row.maxSequence || 0;
-            res.json({ maxSequence });
-        }
-    );
+// 1. 先用台北時區拿到 YYYYMMDD
+const taipeiDateString = new Date().toLocaleDateString('zh-TW', {
+  timeZone: 'Asia/Taipei',
+  year:  'numeric',
+  month: '2-digit',
+  day:   '2-digit'
 });
+// 例如 "2025/06/02"
+const [year, month, day] = taipeiDateString.split('/');
+const baseDatePrefix = `${year}${month}${day}`; // "20250602"
+
+// 2. 再把 "20" 這個外帶的固定前綴串上去
+const fullDatePrefix = `20${baseDatePrefix}`;  // "2020250602"
+console.log(`[後端 Debug] fullDatePrefix (外帶) = "${fullDatePrefix}"`);
+
+// 3. 用這個去做 LIKE
+db.get(
+  `SELECT MAX(OrderSequence) as maxSequence
+     FROM Takeaway_Orders
+    WHERE OrderID LIKE ?`,
+  [`${fullDatePrefix}%`],  // 比如 "2020250602%"
+  (err, row) => {
+    if (err) { … }
+    const maxSequence = row.maxSequence || 0;
+    res.json({ maxSequence });
+  }
+);
 
 // 提交內用訂單 API（公開路由，給消費者使用）
 app.post('/api/dinein-orders', (req, res) => {
